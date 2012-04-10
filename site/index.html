@@ -1,0 +1,90 @@
+<html>
+    <head>
+      <title>Falling</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      <link rel="stylesheet" href="style/style.css" type="text/css">
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+      <script src="js/jquery.hotkeys.js" type="text/javascript"></script>
+      <script src="js/keyStatus.js" type="text/javascript"></script>
+      <script src="js/sylvester.js" type="text/javascript"></script>
+      <script src="js/glUtils.js" type="text/javascript"></script>
+
+      <script src="js/Timer.js" type="text/javascript"></script>
+      <script src="js/Quad.js" type="text/javascript"></script>
+      <script src="js/Cloud.js" type="text/javascript"></script>
+      <script src="js/Sky.js" type="text/javascript"></script>
+      <script src="js/Player.js" type="text/javascript"></script>
+
+      <script src="js/main.js" type="text/javascript"></script>
+
+      <script id="shader-vs" type="x-shader/x-vertex">
+	  attribute vec3 aVertexPosition;
+	  attribute vec2 aTexCo;
+
+	  uniform mat4 uMVMatrix;
+	  uniform mat4 uPMatrix;
+
+	  varying highp vec2 vTexCo;
+
+	  void main(void) {
+	      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	      vTexCo = aTexCo;
+	  }
+      </script>
+
+      <script id="shader-fs" type="x-shader/x-fragment">
+	  precision mediump float;
+
+	  varying highp vec2 vTexCo;
+
+	  uniform sampler2D uSampler;
+
+	  void main(void) {
+	      gl_FragColor = texture2D(uSampler, vec2(vTexCo.st));
+	      if(gl_FragColor.a < 0.1) {
+		  discard;
+	      }
+	  }
+      </script>
+
+      <script id="blur-shader" type="x-shader/x-fragment">
+	  precision highp float;
+
+	  uniform sampler2D sceneTex; // 0
+
+	  uniform float rt_w; // render target width
+	  uniform float rt_h; // render target height
+	  uniform float vx_offset;
+
+	  float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
+	  float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
+
+	  void main()
+	  {
+	      vec3 tc = vec3(1.0, 0.0, 0.0);
+	      if (gl_texCoord[0].x < (vx_offset-0.01)) {
+		  vec2 uv = gl_TexCoord[0].xy;
+		  tc = texture2D(sceneTex, uv).rgb * weight[0];
+		  for (int i = 1; i < 3; i++) {
+		      tc += texture2D(sceneTex, uv + vec2(offset[i]) / rt_h, 0.0).rgb * weight[i];
+		      tc += texture2D(sceneTex, uv - vec2(offset[i]) / rt_h, 0.0).rgb * weight[i];
+		  }
+	      } 
+	      else if (gl_TexCoord[0].x >= (vx_offset + 0.01)) {
+		  tc = texture2D(sceneTex, gl_TexCoord[0].xy).rgb;
+	      }
+	      gl_FragColor = vec4(tc, 1.0);
+	  }
+      </script>
+
+    </head>
+    
+    <body>
+	<div id="canvainer">
+	    <canvas id="canvas" width="400" height="600">
+		Your browser doesn't appear to support the HTML5 <code>&lt;canvas&gt;</code> element. You truly are missing out. I'm so, so sorry.
+		Please, http://www.mozilla.org/ or https://www.google.com/chrome/. I wish you all the best.
+	    </canvas>
+	</div>
+    </body>	
+</html>
