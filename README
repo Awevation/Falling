@@ -1,0 +1,8 @@
+To run, cd into the server directory:
+
+> node index.js
+
+
+then go to http://localhost:8888 in your favourite WebGL loving browser.
+
+Then be amazed. 
