@@ -22,11 +22,15 @@ function Player(width, height, xPos, yPos) {
 
 	if(this.verCol) {
 	    this.yPos -= (this.yVel * delta) / 1000.0;
+	    this.yVel = 0;
 	    this.verCol = false;
 	    this.onCloud = true;
 	} else if (this.horCol) {
 	    this.xPos -= (this.xVel * delta) / 1000.0;
+	    this.xVel = 0;
 	    this.yVel += -2;
+	    this.horCol = false;
+	    this.onCloud = false;
 	} 
 	if(!this.onCloud) {
 	    this.yVel += -2;
