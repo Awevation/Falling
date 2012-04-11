@@ -15,6 +15,11 @@ var lastUpdate = 0.0;
 
 var clouds = new Array();
 
+var spawnX = 200,
+    spawnY = 500,
+    playerWidth = 100,
+    playerHeight = 100;
+	   
 $(document).ready(function() {
     main();
 });
@@ -32,11 +37,6 @@ function main() {
     initShaders();
     
     initWorld();
-
-    /*sky.genCloud();
-    sky.genCloud();*/
-    sky.genCloud();
-    sky.genCloud();
    
     setInterval(function() {
 	updateScene();
@@ -136,8 +136,15 @@ function initWorld() {
     sky = new Sky(400, 600, 0, 0);
     sky.loadTexture("../images/sky.png");
     sky.bufferUp();
+    sky.genCloud();
+    sky.genCloud();
 
-    player = new Player(100, 100, 200, 500);
+    for(var i = 0; i < sky.clouds.length; i++) {
+	if(spawnX > sky.clouds[i].xPos && spawnX < sky.clouds[i].xPos + sky.clouds[i].width) {
+	    spawnX = Math.floor(Math.random() * 401);
+	}
+    }
+    player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.loadTexture("../images/player.png");
     player.bufferUp();
     player.loadBBox(new BoundingBox(22, 0, 37, 76));

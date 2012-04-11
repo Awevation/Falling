@@ -52,6 +52,10 @@ function Player(width, height, xPos, yPos) {
 	var yOverlap;
 	if(a.xPos + a.width < b.xPos + b.width && a.yPos > b.yPos) {
 	    xOverlap = a.xPos + a.width - b.xPos;
+	    if(xOverlap > b.width - 5) {
+		console.log("returning true");
+		return true;
+	    }
 	    yOverlap = b.yPos + b.height - a.yPos;
 	} else if (a.xPos + a.width < b.xPos + b.width && a.yPos < b.yPos) {
 	    xOverlap = a.xPos + a.width - b.xPos;
