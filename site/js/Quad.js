@@ -11,6 +11,7 @@ function Quad() {
     var texture;
     this.width;
     this.height;
+    this.bBoxes = new Array();
 
     this.setX = function(x) {
 	this.xPos = x;
@@ -52,7 +53,7 @@ function Quad() {
 	    ];
 
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
-    }
+    };
     this.update = function(delta) {
 	this.xPos += (this.xVel * delta) / 1000.0;
 	this.yPos += (this.yVel * delta) / 1000.0;
@@ -82,8 +83,8 @@ function Quad() {
 	//pop back to old matrix
 	mvPopMatrix();                      
     };
-    this.uDraw = function(posAttr, texAttr) { //because there's no real concept of a 'super' call in JS, specific objects can draw what they want, called after object draw calls.
-    }
+    this.uDraw = function(posAttr, texAttr) { //because there's no real concept of a 'super' call in JS, specific objects can draw what they want
+    };
     var initTexture = function (image, texture) {
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -91,13 +92,22 @@ function Quad() {
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 	gl.generateMipmap(gl.TEXTURE_2D);
 	gl.bindTexture(gl.TEXTURE_2D, null);
-    }
+    };
     this.loadTexture = function(src) {
 	image = new Image();
 	texture = gl.createTexture();
 	image.onload = function() {
-	initTexture(image, texture);
+	    initTexture(image, texture);
 	}
 	image.src = src;
+    };
+    this.loadBBox = function(BoundingBox) {
+	this.bBoxes.push(BoundingBox);
+    };
+    this.alignBBoxes = function() {
+	for(var i  = 0; i < this.bBoxes.length; i++) {
+	    this.bBoxes[i].xPos = this.xPos + this.bBoxes[i].xOff;
+	    this.bBoxes[i].yPos = this.yPos + this.bBoxes[i].yOff;
+	}
     }
 }

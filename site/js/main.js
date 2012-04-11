@@ -105,13 +105,14 @@ function updateScene() {
 	var dt = startTime - lastUpdate;
 	sky.update(dt);
 	
-	for(var i = 0.0; i < sky.clouds.length; i++) {
-	    if(player.checkCollision(sky.clouds[i])) {
-		break;
-	    } else {
-		continue;
-	    }
-	}
+	sky.clouds.forEach(function(cloud) {
+
+	    player.bBoxes.forEach(function(bBox) {
+		if(player.collides(bBox, cloud)) {
+		    player.handleCollision(bBox, cloud);
+		}
+	    });
+	});
 
 	player.update(dt);
     }
@@ -136,9 +137,10 @@ function initWorld() {
     sky.loadTexture("../images/sky.png");
     sky.bufferUp();
 
-    player = new Player(50, 100, 200, 500);
+    player = new Player(100, 100, 200, 500);
     player.loadTexture("../images/player.png");
     player.bufferUp();
+    player.loadBBox(new BoundingBox(22, 0, 37, 76));
 }
 
 function initShaders() {

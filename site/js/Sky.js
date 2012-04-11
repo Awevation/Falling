@@ -11,7 +11,6 @@ function Sky(width, height, xPos, yPos) {
     this.clouds = new Array();
 
     this.genCloud = function() {
-	console.log("called");
 	var width = 100;
 	var height = 100;
 	var xPos = Math.floor(Math.random() * 401);
