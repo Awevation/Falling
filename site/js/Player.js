@@ -31,8 +31,7 @@ function Player(width, height, xPos, yPos) {
 	    this.yVel += -2;
 	    this.horCol = false;
 	    this.onCloud = false;
-	} 
-	if(!this.onCloud) {
+	} else {
 	    this.yVel += -2;
 	}
 	if (keydown.left && !this.onCloud) {

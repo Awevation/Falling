@@ -18,6 +18,8 @@ function Sky(width, height, xPos, yPos) {
 	this.clouds.push( new Cloud(width, height, xPos, yPos) );
         this.clouds[this.clouds.length - 1].loadTexture("../images/cloud.png");
 	this.clouds[this.clouds.length - 1].bufferUp();
+	this.clouds[this.clouds.length - 1].loadBBox(new BoundingBox(0, 38, 81, 40));
+	console.log(this.clouds[this.clouds.length - 1].bBoxes[0].xPos);
     }
 
     this.update = function(dt) {

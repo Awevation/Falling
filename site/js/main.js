@@ -58,7 +58,7 @@ function initWebGL() {
     alert("Unable to initialize WebGL. Your browser may not support it.");
   }
 
-  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+  gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
 }
 
@@ -106,11 +106,13 @@ function updateScene() {
 	sky.update(dt);
 	
 	sky.clouds.forEach(function(cloud) {
-
-	    player.bBoxes.forEach(function(bBox) {
-		if(player.collides(bBox, cloud)) {
-		    player.handleCollision(bBox, cloud);
-		}
+	    cloud.bBoxes.forEach(function(clBBox) {
+		player.bBoxes.forEach(function(bBox) {
+		    if(player.collides(bBox, clBBox)) {
+			console.log("handling collision");
+			player.handleCollision(bBox, clBBox);
+		    }
+		});
 	    });
 	});
 

@@ -8,4 +8,11 @@ function Cloud(width, height, xPos, yPos) {
     this.yVel = 0;
     this.width = width;
     this.height = height;
+
+    this.update = function(dt) {
+	this.xPos += (this.xVel * dt) / 1000.0;
+	this.yPos += (this.yVel * dt) / 1000.0;
+
+	this.alignBBoxes();
+    }
 }
