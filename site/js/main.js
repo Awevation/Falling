@@ -13,6 +13,9 @@ var textureAttribute;
 var perspectiveMatrix;
 var lastUpdate = 0.0;
 
+var timer = new Timer();
+var world;
+
 var clouds = new Array();
 
 var spawnX = 200,
@@ -28,7 +31,7 @@ function main() {
   canvas = document.getElementById("canvas");
 
   initWebGL(canvas);
-	
+
   if (gl) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     //gl.clearDepth(1.0);                 
@@ -37,10 +40,13 @@ function main() {
     initShaders();
     
     initWorld();
+
+    timer.start();
    
     setInterval(function() {
-	updateScene();
+	updateScene(timer.getTicks());
 	drawScene();
+	timer.start();
     }, 1000/60);
   }
 }
@@ -98,27 +104,8 @@ function initBuffers() {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadVertIndices), gl.STATIC_DRAW);
 }
 
-function updateScene() {
-    var startTime = (new Date).getTime();
-
-    if(lastUpdate) {
-	var dt = startTime - lastUpdate;
-	sky.update(dt);
-	
-	sky.clouds.forEach(function(cloud) {
-	    cloud.bBoxes.forEach(function(clBBox) {
-		player.bBoxes.forEach(function(bBox) {
-		    if(player.collides(bBox, clBBox)) {
-			console.log("handling collision");
-			player.handleCollision(bBox, clBBox);
-		    }
-		});
-	    });
-	});
-
-	player.update(dt);
-    }
-    lastUpdate = startTime;
+function updateScene(dt) {
+    world.update(dt);
 }
 
 function drawScene() {
@@ -131,25 +118,25 @@ function drawScene() {
   mvTranslate([0.0, 0.0, 0.0]);
 
   sky.draw(posAttribute, textureAttribute);
-  player.draw(posAttribute, textureAttribute);
+  world.draw(posAttribute, textureAttribute);
 }
 
 function initWorld() {
+    world = new World();
+
     sky = new Sky(400, 600, 0, 0);
     sky.loadTexture("../images/sky.png");
     sky.bufferUp();
-    sky.genCloud();
-    sky.genCloud();
 
-    for(var i = 0; i < sky.clouds.length; i++) {
-	if(spawnX > sky.clouds[i].xPos && spawnX < sky.clouds[i].xPos + sky.clouds[i].width) {
-	    spawnX = Math.floor(Math.random() * 401);
-	}
-    }
+    world.genCloud();
+    world.genCloud();
+
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.loadTexture("../images/player.png");
     player.bufferUp();
     player.loadBBox(new BoundingBox(22, 0, 37, 76));
+
+    world.pushEntity(player);
 }
 
 function initShaders() {
