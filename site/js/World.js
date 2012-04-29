@@ -21,18 +21,18 @@ function World() {
 	}
     }
 
+
     this.collision = function(bBox) {
 	for(entity in this.entities) {
 	    for(bBox2 in this.entities[entity].bBoxes) {
-		if(bBox != this.entities[entity].bBoxes[bBox2]) {  
+		if(bBox != this.entities[entity].bBoxes[bBox2]) {
 		    if(collides(bBox, this.entities[entity].bBoxes[bBox2])) {
 			return true;
-		    } else {
-			return false;
 		    }
 		}
 	    }
 	}
+	return false;
     }
 
     this.genCloud = function() {
@@ -45,8 +45,8 @@ function World() {
 	cloud.loadTexture("../images/cloud.png");
 	cloud.bufferUp();
 	cloud.loadBBox(new BoundingBox(0, 38, 81, 40));
+	cloud.alignBBoxes();
 
 	this.entities.push(cloud);
-	console.log("made cloud");
     }
 }

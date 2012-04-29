@@ -105,9 +105,9 @@ function Quad() {
 	this.bBoxes.push(BoundingBox);
     };
     this.alignBBoxes = function() {
-	for(var i  = 0; i < this.bBoxes.length; i++) {
-	    this.bBoxes[i].xPos = this.xPos + this.bBoxes[i].xOff;
-	    this.bBoxes[i].yPos = this.yPos + this.bBoxes[i].yOff;
+	for(bBox in this.bBoxes) {
+	    this.bBoxes[bBox].xPos = this.xPos + this.bBoxes[bBox].xOff;
+	    this.bBoxes[bBox].yPos = this.yPos + this.bBoxes[bBox].yOff;
 	}
-    }
+    };
 }

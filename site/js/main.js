@@ -130,6 +130,11 @@ function initWorld() {
 
     world.genCloud();
     world.genCloud();
+    world.genCloud();
+
+    while(world.collision({xPos: spawnX, yPos: spawnY, width: playerWidth, height: playerHeight, xOff: 0, yOff: 0})) {
+	spawnX = Math.floor(Math.random() * 401);
+    }
 
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.loadTexture("../images/player.png");

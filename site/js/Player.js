@@ -8,9 +8,8 @@ function Player(width, height, xPos, yPos) {
     this.yPos = yPos;
     this.xVel = 0;
     this.yVel = 0;
-    this.falling = true;
     this.onCloud = false;
-    this.cloudOn;
+    this.bBoxes = new Array();
 
     this.handleEvents = function() {
 	if (keydown.left && !this.onCloud) {
@@ -22,17 +21,16 @@ function Player(width, height, xPos, yPos) {
 	} else if (keydown.right && this.onCloud) {
 	    this.xVel += 6;
 	} else if (keydown.up && this.onCloud) {
-	    this.yVel += 10;
+	    this.yVel += 100;
+	    this.onCloud = false;
 	}
-
-	this.yVel += -2;
-
     }
     
     this.update = function(world, dt) {
 	this.handleEvents();
 
 	this.xPos += (this.xVel * dt) / 1000.0;
+	this.alignBBoxes();
 
 	//check for horizontal collision, act on it
 	for(bBox in this.bBoxes) {
@@ -40,23 +38,28 @@ function Player(width, height, xPos, yPos) {
 		this.xPos -= (this.xVel * dt) / 1000.0;
 		this.xVel = 0;
 		this.onCloud = false;
-		console.log("horCol!!");
+		this.alignBBoxes();
 	    }
 	}
 
 	this.yPos += (this.yVel * dt) / 1000.0;
+	this.alignBBoxes();
 
 	//check for vertical collision, act on it
 	for(bBox in this.bBoxes) {
 	    if(world.collision(this.bBoxes[bBox])) {
-		this.yPos -= (this.yVel * dt) / 1000.0;          
+		this.yPos -= (this.yVel * dt) / 1000.0;	
 		this.yVel = 0;
 		this.onCloud = true;
+		this.alignBBoxes();
+	    } else {
+		this.onCloud = false;
 	    }
 	}
 
-
-	this.alignBBoxes();
+	if(!this.onCloud && this.yVel > -200) {
+	    this.yVel += gravity;
+	}
 
     }
 }

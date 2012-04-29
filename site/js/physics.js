@@ -1,3 +1,5 @@
+var gravity = -2;
+
 function collides(a, b) {
     return a.xPos < b.xPos + b.width &&
 	a.xPos + a.width > b.xPos &&
