@@ -57,8 +57,20 @@ function Player(width, height, xPos, yPos) {
 	    }
 	}
 
-	if(!this.onCloud && this.yVel > -200) {
-	    this.yVel += gravity;
+	//for friction...
+
+	if(this.onCloud) {
+	    if(this.xVel > cloudVel) {
+		this.xVel -= friction;
+	    } else if (this.xVel < cloudVel) {
+		this.xVel += friction;
+	    }
+	}
+
+	if(!this.onCloud) {
+	    if(this.yVel > -200) { //cap gravity
+		this.yVel += gravity;
+	    }
 	}
 
     }

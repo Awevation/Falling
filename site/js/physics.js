@@ -1,4 +1,7 @@
+//constants
 var gravity = -2;
+var friction = 2
+var cloudVel = 10;
 
 function collides(a, b) {
     return a.xPos < b.xPos + b.width &&
