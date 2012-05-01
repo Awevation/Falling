@@ -8,5 +8,6 @@ function Sky(width, height, xPos, yPos) {
     this.yVel = 0;
     this.width = width;
     this.height = height;
+    this.tag = "sky";
 }
 

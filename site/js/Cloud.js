@@ -1,10 +1,11 @@
 function Cloud(width, height, xPos, yPos) {
     this.xPos = xPos;
     this.yPos = yPos;
-    this.xVel = cloudVel;
+    this.xVel = 10; //cloudVel;
     this.yVel = 0;
     this.width = width;
     this.height = height;
+    this.tag = "cloud";
     this.bBoxes = new Array();
 
     this.update = function(world, dt) {

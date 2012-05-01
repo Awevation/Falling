@@ -25,7 +25,7 @@ function World() {
     this.collision = function(bBox) {
 	for(entity in this.entities) {
 	    for(bBox2 in this.entities[entity].bBoxes) {
-		if(bBox != this.entities[entity].bBoxes[bBox2]) {
+		if(bBox.tag != this.entities[entity].tag) {
 		    if(collides(bBox, this.entities[entity].bBoxes[bBox2])) {
 			return true;
 		    }
@@ -44,7 +44,7 @@ function World() {
 	
 	cloud.loadTexture("../images/cloud.png");
 	cloud.bufferUp();
-	cloud.loadBBox(new BoundingBox(0, 38, 81, 40));
+	cloud.loadBBox(new BoundingBox(5, 32, 91, 38));
 	cloud.alignBBoxes();
 
 	this.entities.push(cloud);

@@ -1,7 +1,5 @@
 //various variables
-
-var canvas;
-var gl;
+var textureLoader;
 var quadVertsBuff;
 var quadVertTexCoBuff;
 var quadVertsIndexBuff;
@@ -13,7 +11,7 @@ var textureAttribute;
 var perspectiveMatrix;
 var lastUpdate = 0.0;
 
-var timer = new Timer();
+var dt = new Timer();
 var world;
 
 var clouds = new Array();
@@ -28,30 +26,37 @@ $(document).ready(function() {
 });
 
 function main() {
-  canvas = document.getElementById("canvas");
+  var canvas = document.getElementById("canvas");
 
   initWebGL(canvas);
 
   if (gl) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    //gl.clearDepth(1.0);                 
-    gl.disable(gl.DEPTH_TEST);           
+    gl.disable(gl.DEPTH_TEST);
+
+    //for errr... texture loading!
+    textureLoader = new TextureUtil.TextureLoader(gl);
+
     
     initShaders();
     
     initWorld();
 
-    timer.start();
+    //start timer for finding delta
+    dt.start();
    
-    setInterval(function() {
-	updateScene(timer.getTicks());
-	drawScene();
-	timer.start();
-    }, 1000/60);
+    loop();
   }
 }
 
-function initWebGL() {
+function loop() {
+    requestAnimationFrame(loop);
+    updateScene(dt.getTicks());
+    drawScene();
+    dt.start();
+}
+
+function initWebGL(canvas) {
   gl = null;
   
   try {
@@ -137,9 +142,8 @@ function initWorld() {
     }
 
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
-    player.loadTexture("../images/player.png");
+    player.loadTexture("../images/player/player.png");
     player.bufferUp();
-    player.loadBBox(new BoundingBox(22, 0, 37, 76));
 
     world.pushEntity(player);
 }
