@@ -36,8 +36,9 @@ function main() {
 
     //for errr... texture loading!
     textureLoader = new TextureUtil.TextureLoader(gl);
-
     
+    initFBO();
+
     initShaders();
     
     initWorld();
@@ -55,7 +56,7 @@ function loop() {
     requestAnimationFrame(loop);
     updateScene(dt.getTicks());
     drawScene();
-    fps = 1000 / dt.getTicks();
+    fps =  1 / (dt.getTicks() / 1000.0);
     console.log(fps);
     dt.start();
 }
@@ -77,44 +78,13 @@ function initWebGL(canvas) {
   gl.enable(gl.BLEND);
 }
 
-function initBuffers() {
-    quadVertsBuff = gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadVertsBuff);
-
-    var quadVerts = [
-	0.0, quadSize, 0.0,
-	0.0, 0.0, 0.0,
-	quadSize, quadSize, 0.0,
-	quadSize, 0.0, 0.0
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVerts), gl.STATIC_DRAW);
-
-    quadVertTexCoBuff = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadVertTexCoBuff);
-
-    var quadTexCo = [
-	0.0, 0.0,
-	0.0, 1.0,
-	1.0, 0.0,
-	1.0, 1.0
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadTexCo), gl.STATIC_DRAW);
-
-    quadVertsIndexBuff = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadVertsIndexBuff);
-
-    var quadVertIndices = [
-	0, 1, 2, 3
-    ];
-
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadVertIndices), gl.STATIC_DRAW);
-}
-
 function updateScene(dt) {
     world.update(dt);
+}
+
+function initFBO() {
+    var myFBO;
+    gl.genFramebuffersEXT(1, myFBO);
 }
 
 function drawScene() {
