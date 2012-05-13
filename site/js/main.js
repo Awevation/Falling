@@ -36,7 +36,6 @@ function main() {
 
     //for errr... texture loading!
     textureLoader = new TextureUtil.TextureLoader(gl);
-
     
     initShaders();
     
@@ -71,42 +70,6 @@ function initWebGL(canvas) {
 
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
-}
-
-function initBuffers() {
-    quadVertsBuff = gl.createBuffer();
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadVertsBuff);
-
-    var quadVerts = [
-	0.0, quadSize, 0.0,
-	0.0, 0.0, 0.0,
-	quadSize, quadSize, 0.0,
-	quadSize, 0.0, 0.0
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadVerts), gl.STATIC_DRAW);
-
-    quadVertTexCoBuff = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadVertTexCoBuff);
-
-    var quadTexCo = [
-	0.0, 0.0,
-	0.0, 1.0,
-	1.0, 0.0,
-	1.0, 1.0
-    ];
-
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadTexCo), gl.STATIC_DRAW);
-
-    quadVertsIndexBuff = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadVertsIndexBuff);
-
-    var quadVertIndices = [
-	0, 1, 2, 3
-    ];
-
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadVertIndices), gl.STATIC_DRAW);
 }
 
 function updateScene(dt) {
