@@ -1,6 +1,11 @@
 function World() {
     this.entities = new Array();
 
+    //make the sky, load the sky texture
+    this.sky = new Sky(400, 600, 0, 0);
+    this.sky.loadTexture("../images/sky.png");
+    this.sky.bufferUp();
+
     this.pushEntity = function(entity) {
 	this.entities.push(entity);
     }
@@ -12,10 +17,16 @@ function World() {
     this.update = function(dt) {
 	for(entity in this.entities) {
 	    this.entities[entity].update(this, dt);
+
+	    //if it's the player, center the sky around the player!
+	    if(this.entities[entity].tag === "player") {
+		this.sky.update(player);
+	    }
 	}
     }
 
     this.draw = function(posAttribute, texAttribute) {
+	this.sky.draw(posAttribute, texAttribute);
 	for(entity in this.entities) {
 	    this.entities[entity].draw(posAttribute, texAttribute);
 	}
@@ -59,5 +70,9 @@ function World() {
 	cloud.alignBBoxes();
 
 	this.entities.push(cloud);
+    }
+
+    this.setCamera = function() {
+	mvMatrix();
     }
 }

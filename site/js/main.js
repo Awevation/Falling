@@ -120,18 +120,13 @@ function drawScene() {
   perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
   loadIdentity();
-  mvTranslate([0.0, 0.0, 0.0]);
+  mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
 
-  sky.draw(posAttribute, textureAttribute);
   world.draw(posAttribute, textureAttribute);
 }
 
 function initWorld() {
     world = new World();
-
-    sky = new Sky(400, 600, 0, 0);
-    sky.loadTexture("../images/sky.png");
-    sky.bufferUp();
 
     world.genCloud();
     world.genCloud();
