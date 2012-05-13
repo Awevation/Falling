@@ -78,6 +78,8 @@ function Quad() {
 	gl.bindTexture(gl.TEXTURE_2D, texture);
 	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
+	gl.uniform1i(gl.getUniformLocation(shaderProgram, "horizontal"), false);
+
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
 	setMatrixUniforms();

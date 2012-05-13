@@ -28,11 +28,13 @@
 
 	  uniform mat4 uMVMatrix;
 	  uniform mat4 uPMatrix;
+	  uniform mat4 uMVPMatrix; //Pass in a pre-multiplied matrix
 
 	  varying highp vec2 vTexCo;
 
 	  void main(void) {
 	      gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+	      //gl_Position = uMVPMatrix * vec4(aVertexPosition, 1.0);
 	      vTexCo = aTexCo;
 	  }
       </script>
@@ -55,30 +57,48 @@
       <script id="blur-shader" type="x-shader/x-fragment">
 	  precision highp float;
 
-	  uniform sampler2D sceneTex; // 0
+	  uniform sampler2D uSampler; //The texture
 
-	  uniform float rt_w; // render target width
-	  uniform float rt_h; // render target height
-	  uniform float vx_offset;
+	  varying vec2 vTexCo; //the Vertex Texture Coordinate
 
-	  float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
-	  float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
+	  uniform bool horizontal; //Which direction?
 
-	  void main()
-	  {
-	      vec3 tc = vec3(1.0, 0.0, 0.0);
-	      if (gl_texCoord[0].x < (vx_offset-0.01)) {
-		  vec2 uv = gl_TexCoord[0].xy;
-		  tc = texture2D(sceneTex, uv).rgb * weight[0];
-		  for (int i = 1; i < 3; i++) {
-		      tc += texture2D(sceneTex, uv + vec2(offset[i]) / rt_h, 0.0).rgb * weight[i];
-		      tc += texture2D(sceneTex, uv - vec2(offset[i]) / rt_h, 0.0).rgb * weight[i];
-		  }
-	      } 
-	      else if (gl_TexCoord[0].x >= (vx_offset + 0.01)) {
-		  tc = texture2D(sceneTex, gl_TexCoord[0].xy).rgb;
+	  uniform float vAmount; //How *Much* blurrage? between 0-1 
+
+	  uniform float hAmount;
+
+	  float KernelWeights[3];
+
+	  void main(void) {
+	      KernelWeights[0] = 15.0;
+	      KernelWeights[1] = 6.0;
+	      KernelWeights[2] = 1.0;
+
+	      vec4 sum = texture2D(uSampler, vTexCo) * (20.0 / 64.0);
+
+	      vec2 coord1, coord2;
+	      float weight, iFltH, iFltV;
+
+	      for(int i = 0; i < 3; i++) {
+		  weight = KernelWeights[i] / 64.0;
+
+		  iFltV = float(i + 1) * vAmount;
+
+	      	  coord1 = vec2(vTexCo.x, vTexCo.y - iFltV);
+    		  coord2 = vec2(vTexCo.x, vTexCo.y + iFltV);
+
+		  sum += texture2D(uSampler, coord1) * weight;
+		  sum += texture2D(uSampler, coord2) * weight;
 	      }
-	      gl_FragColor = vec4(tc, 1.0);
+
+	      //TODO, figure out how to do proper Hor + Ver blur
+
+	      gl_FragColor = sum;
+
+	      //Test for Alpha
+	      if(gl_FragColor.a < 0.1) {
+		  discard;
+	      }
 	  }
       </script>
 

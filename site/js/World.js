@@ -22,16 +22,27 @@ function World() {
     }
 
 
-    this.collision = function(bBox) {
-	for(entity in this.entities) {
-	    for(bBox2 in this.entities[entity].bBoxes) {
-		if(bBox.tag != this.entities[entity].tag) {
-		    if(collides(bBox, this.entities[entity].bBoxes[bBox2])) {
-			return true;
+    this.collision = function(entity) {
+
+	for(entity2 in this.entities) {
+
+	    for(bBox in this.entities[entity2].bBoxes) {
+
+		for(bBox2 in entity.bBoxes) {
+
+		    if(entity.bBoxes[bBox2].tag != this.entities[entity2].tag) {
+
+			if(collides(entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox])) {
+			    return true;
+			}
 		    }
 		}
 	    }
 	}
+	return false;
+    }
+
+    this.xOverlap = function(entity) {
 	return false;
     }
 

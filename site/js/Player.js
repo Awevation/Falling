@@ -8,26 +8,31 @@ function Player(width, height, xPos, yPos) {
     this.yPos = yPos;
     this.xVel = 0;
     this.yVel = 0;
-    this.onCloud = false;
     this.frame = 0;
+    this.blurFactorH = 0.000;
+    this.blurFactorV = 0.000;
     this.tag = "player";
     this.bBoxes = new Array();
-    this.states = {UMB_OPEN: false}
-
-    var timeout = new Timer();
+    this.states = {
+	UMB_OPEN: false, 
+	SLIDING: false, 
+	JUMPING: false,
+	ONCLOUD: false
+    }
 
     this.handleEvents = function() {
-	if (keydown.left && !this.onCloud) {
-	    this.xVel += -2;
-	} else if (keydown.right && !this.onCloud) {
-	    this.xVel += 2;
-	} else if (keydown.left && this.onCloud) {
-	    this.xVel += -6;
-	} else if (keydown.right && this.onCloud) {
-	    this.xVel += 6;
-	} else if (keydown.up && this.onCloud) {
+	//TODO cap x movement, with UMB_OPEN respecting.
+	if (keydown.left && !this.states.ONCLOUD) {
+	    this.xVel -= PLAYER_AIR_XV;
+	} else if (keydown.right && !this.states.ONCLOUD) {
+	    this.xVel += PLAYER_AIR_XV;
+	} else if (keydown.left && this.states.ONCLOUD) {
+	    this.xVel -= PLAYER_CLOUD_XV;
+	} else if (keydown.right && this.states.ONCLOUD) {
+	    this.xVel += PLAYER_CLOUD_XV;
+	} else if (keydown.up && this.states.ONCLOUD) {
 	    this.yVel += 150;
-	    this.onCloud = false;
+	    this.states.JUMPING = true;
 	} else if (keydown.space) {
 	    this.states.UMB_OPEN = true;
 	} else if (!keydown.space) {
@@ -36,6 +41,7 @@ function Player(width, height, xPos, yPos) {
     }
 
     this.updateTexture = function(frameNum) {
+	//TODO add proper Animation support
 	if(this.states.UMB_OPEN) {
 		texCo = [
 		    0.0, 0.0,
@@ -78,38 +84,37 @@ function Player(width, height, xPos, yPos) {
 	    }   
 	}
 
+	if(this.states.JUMPING) {
+	    this.states.ONCLOUD = false;
+	}
+
 	this.xPos += (this.xVel * dt) / 1000.0;
 	this.alignBBoxes();
 
 	//check for horizontal collision, act on it
-	for(bBox in this.bBoxes) {
-	    if(world.collision(this.bBoxes[bBox])) {
-		this.xPos -= (this.xVel * dt) / 1000.0;
-		this.xVel = 0;
-		this.onCloud = false;
-		this.alignBBoxes();
-		break;
-	    }
+	if(world.collision(this)) {
+	    this.xPos -= (this.xVel * dt) / 1000.0;
+    	    this.xVel = 0;
+	    this.alignBBoxes();
+	}
+	if(!world.xOverlap(this)) {
+	    //then we're not on a cloud
+	    this.states.ONCLOUD = false;
 	}
 
 	this.yPos += (this.yVel * dt) / 1000.0;
 	this.alignBBoxes();
 
 	//check for vertical collision, act on it
-	for(bBox in this.bBoxes) {
-	    if(world.collision(this.bBoxes[bBox])) {
-		this.yPos -= (this.yVel * dt) / 1000.0;	
-		this.yVel = 0;
-		this.onCloud = true;
-		this.alignBBoxes();
-		break;
-	    } else {
-		this.onCloud = false;
-	    }
+	if(world.collision(this)) {
+    	    this.yPos -= (this.yVel * dt) / 1000.0;	
+	    this.yVel = 0;
+	    this.alignBBoxes();
+	    this.states.ONCLOUD = true;
 	}
 
 	//for friction...
-	if(this.onCloud) {
+	if(this.states.ONCLOUD) {
 	    if(this.xVel > cloudVel) {
 		this.xVel -= friction;
 	    } else if (this.xVel < cloudVel) {
@@ -117,7 +122,7 @@ function Player(width, height, xPos, yPos) {
 	    }
 	}
 
-	if(!this.onCloud) {
+	if(!this.states.ONCLOUD) {
 	    if(this.states.UMB_OPEN) {
 		if(this.yVel > -50) { //cap gravity, air resistance
 	    	    this.yVel += gravity;
@@ -133,5 +138,13 @@ function Player(width, height, xPos, yPos) {
 	    }
 	}
 
+	//figure out how much blur to blur with
+	this.blurFactorH = this.xVel / 5000.0;
+	this.blurFactorV = this.yVel / 3000.0;
+    }
+
+    this.uDraw = function(posAttribute, texAttribute) {
+	gl.uniform1f(gl.getUniformLocation(shaderProgram, "hAmount"), this.blurFactorH);
+	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
     }
 }
