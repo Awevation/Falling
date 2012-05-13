@@ -23,6 +23,9 @@ function World() {
 		this.sky.update(player);
 	    }
 	}
+
+	//TODO Possibly generate some clouds. Possibly don't.
+	
     }
 
     this.draw = function(posAttribute, texAttribute) {

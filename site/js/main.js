@@ -84,7 +84,9 @@ function updateScene(dt) {
 
 function initFBO() {
     var myFBO;
-    gl.genFramebuffersEXT(1, myFBO);
+    myFBO = gl.createFramebuffer();
+    //gl.bindFramebuffer(gl.FRAMEBUFFER, myFBO);
+    //gl.bindFramebuffer(gl.FRAMEBUFFER, 0);
 }
 
 function drawScene() {
