@@ -66,7 +66,6 @@ function Quad() {
     this.draw = function(posAttribute, textureAttribute) {
 	mvPushMatrix();
 
-	console.log(this.tag + ": " + this.xPos);
 	mvTranslate([this.xPos, this.yPos, 0.0]);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);

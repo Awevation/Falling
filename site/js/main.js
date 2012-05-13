@@ -42,6 +42,8 @@ function main() {
     
     initWorld();
 
+    var fps = 0;
+
     //start timer for finding delta
     dt.start();
    
@@ -53,6 +55,8 @@ function loop() {
     requestAnimationFrame(loop);
     updateScene(dt.getTicks());
     drawScene();
+    fps = 1000 / dt.getTicks();
+    console.log(fps);
     dt.start();
 }
 
