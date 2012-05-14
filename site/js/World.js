@@ -57,11 +57,19 @@ function World() {
 	return false;
     }
 
-    this.genCloud = function() {
+    this.genClouds = function(player) {
+	//generates points within a +- radius of 1000 from the given player
+	var points = this.genPoints(50, player.xPos - 1000, player.xPos + 1000, player.yPos - 1000, player.yPos + 1000);
+	for(var i = 0; i < points.length; i++) {
+	    this.makeCloud(points[i]);
+	}
+    }
+
+    this.makeCloud = function(point) {
 	var width = 100;
 	var height = 100;
-	var xPos = Math.floor(Math.random() * 401);
-	var yPos = Math.floor(Math.random() * 601);
+	var xPos = point.x;
+	var yPos = point.y;
 	var cloud = new Cloud(width, height, xPos, yPos);
 	
 	cloud.loadTexture("../images/cloud.png");
@@ -71,8 +79,24 @@ function World() {
 
 	this.entities.push(cloud);
     }
+    
+    //It errr.... generates some noise, used to map the clouds. Get ready for Milo Mordaunt's patented (super awesome) noise generator he's about to freestyle.
+    //Wish me luck!
+    this.genPoints = function(numPoints, minX, maxX, minY, maxY) {
+	var points = new Array();
+	var xTemp = 0;
+	var yTemp = 0;
 
-    this.setCamera = function() {
-	mvMatrix();
+	for(var i = 0; i < numPoints; i++) {
+	    xTemp = Math.floor(Math.random() * maxX) + minX;
+	    yTemp = Math.floor(Math.random() * maxY) + minY;
+	    points.push(new Point(xTemp, yTemp));
+	}
+
+	for(var i = 0; i < points.length; i++) {
+	    console.log("@ (" + points[i].x + ", " + points[i].y + ")");
+	}
+
+	return points;
     }
 }

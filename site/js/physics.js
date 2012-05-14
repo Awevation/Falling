@@ -19,3 +19,10 @@ function xOverlap(a, b) {
     return a.xPos < b.xPos + b.width &&
 	   a.xPos + a.width > b.xPos;
 }
+
+//Not Physics per se, but whatever
+function Point(x, y) {
+    this.x = x;
+    this.y = y;
+}
+

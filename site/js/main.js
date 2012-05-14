@@ -91,20 +91,12 @@ function drawScene() {
 function initWorld() {
     world = new World();
 
-    world.genCloud();
-    world.genCloud();
-    world.genCloud();
-
-    //TODO sort this out again.... You need an actual player object.
-    while(world.collision({xPos: spawnX, yPos: spawnY, width: playerWidth, height: playerHeight, xOff: 0, yOff: 0})) {
-	spawnX = Math.floor(Math.random() * 401);
-    }
-
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.loadTexture("../images/player/player.png");
     player.bufferUp();
-
     world.pushEntity(player);
+
+    //world.genClouds(player);
 }
 
 function initShaders() {
@@ -144,7 +136,7 @@ function getShader(gl, id) {
     if (currentChild.nodeType == 3) {
       theSource += currentChild.textContent;
     }
-    
+
     currentChild = currentChild.nextSibling;
   }
   
