@@ -7,6 +7,7 @@ function Cloud(width, height, xPos, yPos) {
     this.height = height;
     this.tag = "cloud";
     this.bBoxes = new Array();
+    this.texture = res.textures.cloud
 
     this.update = function(world, dt) {
 	this.xPos += (this.xVel * dt) / 1000.0;

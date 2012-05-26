@@ -1,21 +1,22 @@
-/*Used as the basis fro pretty much everything.
+/*Used as the basis for pretty much everything.
  * Under BSD License, Copyright 2012 Milo Mordaunt*/
 function Quad() {
-    var verticesBuffer;
-    var textureBuffer;
-    var indexBuffer;
-    var vertices;
-    var indicies;
+    this.verticesBuffer;
+    this.textureBuffer;
+    this.indexBuffer;
+    this.vertices;
+    this.indicies;
     this.xPos;
     this.yPos;
     this.xVel;
     this.yVel;
-    var texCo;
-    var texture;
+    this.texCo;
+    this.texture;
     this.frame = 0;
     this.width;
     this.height;
     this.tag;
+    this.texTag;
     this.bBoxes = new Array();
 
     this.setX = function(x) {
@@ -25,39 +26,39 @@ function Quad() {
 	this.yPos = y;
     };
     this.bufferUp = function() {
-	verticesBuffer = gl.createBuffer();
+	this.verticesBuffer = gl.createBuffer();
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
 
-	vertices = [
+	this.vertices = [
 	    0.0, 	this.height, 0.0,
 	    0.0, 	0.0, 	     0.0,
 	    this.width, this.height, 0.0,
 	    this.width, 0.0, 	     0.0
 	];
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertices), gl.STATIC_DRAW);
 
-	textureBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+	this.textureBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 
-	texCo = [
+	this.texCo = [
 	    0.0, 0.0,
 	    0.0, 1.0,
 	    1.0, 0.0,
 	    1.0, 1.0
 	];
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCo), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 
-	indexBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+	this.indexBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-	indices = [
+	this.indices = [
 	    0, 1, 2, 3
 	    ];
 
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
     };
     this.update = function(delta) {
 	this.xPos += (this.xVel * delta) / 1000.0;
@@ -68,32 +69,29 @@ function Quad() {
 
 	mvTranslate([this.xPos, this.yPos, 0.0]);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
 	gl.vertexAttribPointer(posAttribute, 3, gl.FLOAT, false, 0, 0);
 
-  	gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+  	gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
 	gl.vertexAttribPointer(textureAttribute, 2, gl.FLOAT, false, 0, 0);
 
 	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, texture);
+	gl.bindTexture(gl.TEXTURE_2D, this.texture);
 	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
 	setMatrixUniforms();
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
+
 	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
 	this.uDraw(posAttribute, textureAttribute);
 
 	//pop back to old matrix
-	mvPopMatrix();                      
+	mvPopMatrix();
     };
     this.uDraw = function(posAttr, texAttr) { //because there's no real concept of a 'super' call in JS, specific objects can draw what they want
-    };
-    this.loadTexture = function(src) {
-	texture = textureLoader.load(src, function(texture){
-	    //handler
-	});
     };
     this.loadBBox = function(BoundingBox) {
 	BoundingBox.setTag(this.tag);
@@ -120,7 +118,7 @@ function Quad() {
 	    }
 	}
     };
-    this.updateTexture = function(frameNum) {
+    /*this.updateTexture = function(frameNum) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
 
 	this.frame++
@@ -129,14 +127,14 @@ function Quad() {
 	}
 	switch(this.frame) {
 	    case 1:
-		texCo = [
+		this.texCo = [
 		    0.0, 0.0,
 		    0.0, 1.0,
 		    0.5, 0.0,
 		    0.5, 1.0
 	        ];
 	    case 2:
-		  texCo = [
+		  this.texCo = [
 		      0.5, 0.0,
 		      0.5, 1.0,
 		      1.0, 0.0,
@@ -144,7 +142,7 @@ function Quad() {
 		   ];
 	}
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCo), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 
-    }
+    }*/
 }

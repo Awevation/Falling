@@ -9,6 +9,7 @@ function Sky(width, height, xPos, yPos) {
     this.width = 400;
     this.height = 600;
     this.tag = "sky";
+    this.texture = res.textures.sky;
 
     //update the sky so it is around the player!
     this.update = function(player) {

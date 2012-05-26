@@ -5,7 +5,7 @@ var quadVertTexCoBuff;
 var quadVertsIndexBuff;
 var mvMatrix;
 var shaderProgram;
-
+var res;
 var positionAttribute;
 var textureAttribute;
 var perspectiveMatrix;
@@ -13,8 +13,6 @@ var lastUpdate = 0.0;
 
 var dt = new Timer();
 var world;
-
-var clouds = new Array();
 
 var spawnX = 200,
     spawnY = 500,
@@ -36,6 +34,8 @@ function main() {
 
     //for errr... texture loading!
     textureLoader = new TextureUtil.TextureLoader(gl);
+
+    res = new Res();
     
     initShaders();
     
@@ -85,18 +85,18 @@ function drawScene() {
   loadIdentity();
   mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
 
-  world.draw(posAttribute, textureAttribute);
+  world.draw(positionAttribute, textureAttribute);
 }
 
 function initWorld() {
     world = new World();
 
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
-    player.loadTexture("../images/player/player.png");
     player.bufferUp();
+
     world.pushEntity(player);
 
-    //world.genClouds(player);
+    world.genClouds(player);
 }
 
 function initShaders() {
@@ -115,8 +115,8 @@ function initShaders() {
   
   gl.useProgram(shaderProgram);
   
-  posAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(posAttribute);
+  positionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(positionAttribute);
   
   textureAttribute = gl.getAttribLocation(shaderProgram, "aTexCo");
   gl.enableVertexAttribArray(textureAttribute);

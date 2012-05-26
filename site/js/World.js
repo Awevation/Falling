@@ -3,7 +3,6 @@ function World() {
 
     //make the sky, load the sky texture
     this.sky = new Sky(400, 600, 0, 0);
-    this.sky.loadTexture("../images/sky.png");
     this.sky.bufferUp();
 
     this.pushEntity = function(entity) {
@@ -27,6 +26,7 @@ function World() {
 
     this.draw = function(posAttribute, texAttribute) {
 	this.sky.draw(posAttribute, texAttribute);
+
 	for(entity in this.entities) {
 	    this.entities[entity].draw(posAttribute, texAttribute);
 	}
@@ -59,7 +59,7 @@ function World() {
 
     this.genClouds = function(player) {
 	//generates points within a +- radius of 1000 from the given player
-	var points = this.genPoints(50, player.xPos - 1000, player.xPos + 1000, player.yPos - 1000, player.yPos + 1000);
+	var points = this.genPoints(50, player.xPos - 3000, player.xPos + 3000, player.yPos - 3000, player.yPos + 3000);
 	for(var i = 0; i < points.length; i++) {
 	    this.makeCloud(points[i]);
 	}
@@ -68,11 +68,8 @@ function World() {
     this.makeCloud = function(point) {
 	var width = 100;
 	var height = 100;
-	var xPos = point.x;
-	var yPos = point.y;
-	var cloud = new Cloud(width, height, xPos, yPos);
+	var cloud = new Cloud(width, height, point.x, point.y);
 	
-	cloud.loadTexture("../images/cloud.png");
 	cloud.bufferUp();
 	cloud.loadBBox(new BoundingBox(5, 32, 91, 38));
 	cloud.alignBBoxes();
@@ -91,10 +88,6 @@ function World() {
 	    xTemp = Math.floor(Math.random() * maxX) + minX;
 	    yTemp = Math.floor(Math.random() * maxY) + minY;
 	    points.push(new Point(xTemp, yTemp));
-	}
-
-	for(var i = 0; i < points.length; i++) {
-	    console.log("@ (" + points[i].x + ", " + points[i].y + ")");
 	}
 
 	return points;

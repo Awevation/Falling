@@ -1,6 +1,3 @@
-Player.prototype = new Quad();
-Player.prototype.constructor = Player;
-
 function Player(width, height, xPos, yPos) {
     this.width = width;                 
     this.height = height;
@@ -13,6 +10,8 @@ function Player(width, height, xPos, yPos) {
     this.blurFactorV = 0.000;
     this.tag = "player";
     this.bBoxes = new Array();
+    this.texCo = new Array();
+    this.texture = res.textures.player;
     this.states = {
 	UMB_OPEN: false, 
 	SLIDING: false, 
@@ -43,22 +42,22 @@ function Player(width, height, xPos, yPos) {
     this.updateTexture = function(frameNum) {
 	//TODO add proper Animation support
 	if(this.states.UMB_OPEN) {
-		texCo = [
-		    0.0, 0.0,
-		    0.0, 1.0,
-		    0.5, 0.0,
-		    0.5, 1.0
+		this.texCo = [
+		    0.0,        0.0,
+		    0.0,        1.0,
+		    1/frameNum, 0.0,
+		    1/frameNum, 1.0
 		];
 	} else if (!this.states.UMB_OPEN) {
-		  texCo = [
-		      0.5, 0.0,
-		      0.5, 1.0,
-		      1.0, 0.0,
-		      1.0, 1.0
+		  this.texCo = [
+		      1/frameNum,       0.0,
+		      1/frameNum,       1.0,
+		      2 * 1/frameNum,   0.0,
+		      2 * 1/frameNum,  1.0
 	          ];
 	}
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCo), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 
     }
     
@@ -147,3 +146,6 @@ function Player(width, height, xPos, yPos) {
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
     }
 }
+
+Player.prototype = new Quad();
+Player.prototype.constructor = Player;
