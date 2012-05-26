@@ -12,6 +12,7 @@ function Player(width, height, xPos, yPos) {
     this.bBoxes = new Array();
     this.texCo = new Array();
     this.texture = res.textures.player;
+    this.cloudOn;
     this.states = {
 	UMB_OPEN: false, 
 	SLIDING: false, 
@@ -56,6 +57,7 @@ function Player(width, height, xPos, yPos) {
 		      2 * 1/frameNum,  1.0
 	          ];
 	}
+	
 
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 
@@ -113,9 +115,9 @@ function Player(width, height, xPos, yPos) {
 
 	//for friction...
 	if(this.states.ONCLOUD) {
-	    if(this.xVel > cloudVel) {
+	    if(this.xVel > this.cloudOn.xVel) {
 		this.xVel -= friction;
-	    } else if (this.xVel < cloudVel) {
+	    } else if (this.xVel < this.cloudOn.xVel) {
 		this.xVel += friction;
 	    }
 	}
@@ -144,6 +146,10 @@ function Player(width, height, xPos, yPos) {
     this.uDraw = function(posAttribute, texAttribute) {
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "hAmount"), this.blurFactorH);
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
+    }
+
+    this.handleCollision = function(entity) {
+	this.cloudOn = entity;
     }
 }
 

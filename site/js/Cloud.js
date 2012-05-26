@@ -1,7 +1,7 @@
-function Cloud(width, height, xPos, yPos) {
+function Cloud(width, height, xPos, yPos, speed) {
     this.xPos = xPos;
     this.yPos = yPos;
-    this.xVel = 10; //cloudVel;
+    this.xVel = speed; //cloudVel;
     this.yVel = 0;
     this.width = width;
     this.height = height;

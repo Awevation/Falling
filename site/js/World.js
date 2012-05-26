@@ -44,6 +44,9 @@ function World() {
 		    if(entity.bBoxes[bBox2].tag != this.entities[entity2].tag) {
 
 			if(collides(entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox])) {
+			    if(entity.tag === "player") {
+				entity.handleCollision(this.entities[entity2]);
+			    }
 			    return true;
 			}
 		    }
@@ -68,7 +71,8 @@ function World() {
     this.makeCloud = function(point) {
 	var width = 100;
 	var height = 100;
-	var cloud = new Cloud(width, height, point.x, point.y);
+	var speed = Math.floor(Math.random() * 20);
+	var cloud = new Cloud(width, height, point.x, point.y, speed);
 	
 	cloud.bufferUp();
 	cloud.loadBBox(new BoundingBox(5, 32, 91, 38));
