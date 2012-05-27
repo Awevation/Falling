@@ -85,7 +85,9 @@ function drawScene() {
   loadIdentity();
   mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
 
-  world.draw(positionAttribute, textureAttribute);
+  world.draw(positionAttribute, textureAttribute, player);
+
+  gl.flush();
 }
 
 function initWorld() {

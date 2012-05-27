@@ -57,10 +57,6 @@ function Player(width, height, xPos, yPos) {
 		      2 * 1/frameNum,  1.0
 	          ];
 	}
-	
-
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
-
     }
     
     this.update = function(world, dt) {

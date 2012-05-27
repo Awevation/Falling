@@ -24,11 +24,17 @@ function World() {
 	}
     }
 
+    var TEST = new BoundingBox(0, 0, 1000, 1000);
+
     this.draw = function(posAttribute, texAttribute) {
+	TEST.xPos = player.xPos - 500;
+	TEST.yPos = player.yPos - 500;
 	this.sky.draw(posAttribute, texAttribute);
 
 	for(entity in this.entities) {
-	    this.entities[entity].draw(posAttribute, texAttribute);
+	    if(collides(this.entities[entity], TEST)) {
+		this.entities[entity].draw(posAttribute, texAttribute);
+	    }
 	}
     }
 
@@ -62,7 +68,7 @@ function World() {
 
     this.genClouds = function(player) {
 	//generates points within a +- radius of 1000 from the given player
-	var points = this.genPoints(50, player.xPos - 3000, player.xPos + 3000, player.yPos - 3000, player.yPos + 3000);
+	var points = this.genPoints(200, player.xPos - 5000, player.xPos + 5000, player.yPos - 5000, player.yPos + 5000);
 	for(var i = 0; i < points.length; i++) {
 	    this.makeCloud(points[i]);
 	}
