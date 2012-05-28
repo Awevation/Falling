@@ -20,6 +20,14 @@ function xOverlap(a, b) {
 	   a.xPos + a.width > b.xPos;
 }
 
+//checks whether a is in b
+function within(a, b) {
+    return a.xPos < b.xPos + b.width &&
+	   a.xPos > b.xPos &&
+	   a.yPos + a.height < b.yPos + b.height &&
+	   a.yPos > b.yPos; 
+}
+
 //Not Physics per se, but whatever
 function Point(x, y) {
     this.x = x;

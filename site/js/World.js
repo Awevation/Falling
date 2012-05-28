@@ -1,6 +1,8 @@
 function World() {
     this.entities = new Array();
 
+    this.camera = new Camera();
+
     //make the sky, load the sky texture
     this.sky = new Sky(400, 600, 0, 0);
     this.sky.bufferUp();
@@ -17,22 +19,24 @@ function World() {
 	for(entity in this.entities) {
 	    this.entities[entity].update(this, dt);
 
-	    //if it's the player, center the sky around the player!
+	    //if it's the player, center the sky + camera around the player!
 	    if(this.entities[entity].tag === "player") {
-		this.sky.update(player);
+		this.camera.update(dt, player);
+		this.sky.update(this.camera);
 	    }
 	}
     }
 
-    var TEST = new BoundingBox(0, 0, 1000, 1000);
+    //The area to render around the player
+    var renderZone = new BoundingBox(0, 0, 1000, 1000);
 
     this.draw = function(posAttribute, texAttribute) {
-	TEST.xPos = player.xPos - 500;
-	TEST.yPos = player.yPos - 500;
+	renderZone.xPos = player.xPos - renderZone.width / 2;
+	renderZone.yPos = player.yPos - renderZone.height / 2;
 	this.sky.draw(posAttribute, texAttribute);
 
 	for(entity in this.entities) {
-	    if(collides(this.entities[entity], TEST)) {
+	    if(collides(this.entities[entity], renderZone)) {
 		this.entities[entity].draw(posAttribute, texAttribute);
 	    }
 	}
@@ -68,7 +72,7 @@ function World() {
 
     this.genClouds = function(player) {
 	//generates points within a +- radius of 1000 from the given player
-	var points = this.genPoints(200, player.xPos - 5000, player.xPos + 5000, player.yPos - 5000, player.yPos + 5000);
+	var points = this.genPoints(500, player.xPos - 5000, player.xPos + 5000, player.yPos - 5000, player.yPos + 5000);
 	for(var i = 0; i < points.length; i++) {
 	    this.makeCloud(points[i]);
 	}

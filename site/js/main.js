@@ -9,13 +9,12 @@ var res;
 var positionAttribute;
 var textureAttribute;
 var perspectiveMatrix;
-var lastUpdate = 0.0;
 
 var dt = new Timer();
 var world;
 
 var spawnX = 200,
-    spawnY = 500,
+    spawnY = 300,
     playerWidth = 100,
     playerHeight = 100;
 	   
@@ -83,7 +82,9 @@ function drawScene() {
   perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
   loadIdentity();
-  mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
+ 
+  //mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
+  mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
 
   world.draw(positionAttribute, textureAttribute, player);
 

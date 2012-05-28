@@ -11,9 +11,9 @@ function Sky(width, height, xPos, yPos) {
     this.tag = "sky";
     this.texture = res.textures.sky;
 
-    //update the sky so it is around the player!
-    this.update = function(player) {
-	this.xPos = player.xPos - 150; 
-	this.yPos = player.yPos - 300;
+    //update the sky so it is around the camera!
+    this.update = function(camera) {
+	this.xPos = camera.xPos; 
+	this.yPos = camera.yPos;
     }
 }
