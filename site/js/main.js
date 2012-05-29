@@ -49,7 +49,7 @@ function main() {
 
 function loop() {
     requestAnimationFrame(loop);
-    updateScene(dt.getTicks());
+    updateScene(dt.getTicks() / 1000.0);
     drawScene();
     dt.start();
 }

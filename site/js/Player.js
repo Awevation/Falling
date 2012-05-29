@@ -84,12 +84,12 @@ function Player(width, height, xPos, yPos) {
 	    this.states.ONCLOUD = false;
 	}
 
-	this.xPos += (this.xVel * dt) / 1000.0;
+	this.xPos += this.xVel * dt;
 	this.alignBBoxes();
 
 	//check for horizontal collision, act on it
 	if(world.collision(this)) {
-	    this.xPos -= (this.xVel * dt) / 1000.0;
+	    this.xPos -= this.xVel * dt;
     	    this.xVel = 0;
 	    this.alignBBoxes();
 	}
@@ -98,12 +98,12 @@ function Player(width, height, xPos, yPos) {
 	    this.states.ONCLOUD = false;
 	}
 
-	this.yPos += (this.yVel * dt) / 1000.0;
+	this.yPos += this.yVel * dt;
 	this.alignBBoxes();
 
 	//check for vertical collision, act on it
 	if(world.collision(this)) {
-    	    this.yPos -= (this.yVel * dt) / 1000.0;	
+    	    this.yPos -= this.yVel * dt;	
 	    this.yVel = 0;
 	    this.alignBBoxes();
 	    this.states.ONCLOUD = true;
@@ -123,10 +123,10 @@ function Player(width, height, xPos, yPos) {
 		if(this.yVel > -50) { //cap gravity, air resistance
 	    	    this.yVel += gravity;
 		} else {
-		    this.yVel -= gravity;
+		    this.yVel -= gravity * 10;
 		}
 	    } else {
-		if(this.yVel > -200) {
+		if(this.yVel > -500) {
 		    this.yVel += gravity;
 		} else {
 		    this.yVel -= gravity;
@@ -135,8 +135,8 @@ function Player(width, height, xPos, yPos) {
 	}
 
 	//figure out how much blur to blur with
-	this.blurFactorH = this.xVel / 5000.0;
-    	this.blurFactorV = this.yVel / 5000.0;
+	this.blurFactorH = this.xVel / 10000.0;
+    	this.blurFactorV = this.yVel / 10000.0;
     }
 
     this.uDraw = function(posAttribute, texAttribute) {

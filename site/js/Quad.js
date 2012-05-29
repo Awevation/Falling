@@ -61,8 +61,8 @@ function Quad() {
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
     };
     this.update = function(delta) {
-	this.xPos += (this.xVel * delta) / 1000.0;
-	this.yPos += (this.yVel * delta) / 1000.0;
+	this.xPos += this.xVel * delta;
+	this.yPos += this.yVel * delta;
     };
     this.draw = function(posAttribute, textureAttribute) {
 	mvPushMatrix();

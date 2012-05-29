@@ -72,7 +72,7 @@ function World() {
 
     this.genClouds = function(player) {
 	//generates points within a +- radius of 1000 from the given player
-	var points = this.genPoints(500, player.xPos - 5000, player.xPos + 5000, player.yPos - 5000, player.yPos + 5000);
+	var points = this.genPoints(250, player.xPos - 5000, player.xPos + 5000, player.yPos - 5000, player.yPos + 5000);
 	for(var i = 0; i < points.length; i++) {
 	    this.makeCloud(points[i]);
 	}
