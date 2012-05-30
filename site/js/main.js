@@ -83,7 +83,6 @@ function drawScene() {
 
   loadIdentity();
  
-  //mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
   mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
 
   world.draw(positionAttribute, textureAttribute, player);

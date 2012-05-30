@@ -14,7 +14,10 @@ function Res() {
 	sky:
 	  textureLoader.load("images/sky.png", function(texture) {
       	      //handler	     
-	  })
- 
+	  }),
+	boundingBox:
+	    textureLoader.load("images/boundingBox.png", function(texture) {
+		//handler      
+	    })
     };
 }

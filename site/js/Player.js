@@ -13,6 +13,8 @@ function Player(width, height, xPos, yPos) {
     this.texCo = new Array();
     this.texture = res.textures.player;
     this.cloudOn;
+    this.bBoxP;
+    this.bBoxE;
     this.states = {
 	UMB_OPEN: false, 
 	SLIDING: false, 
@@ -30,7 +32,7 @@ function Player(width, height, xPos, yPos) {
 	    this.xVel -= PLAYER_CLOUD_XV;
 	} else if (keydown.right && this.states.ONCLOUD) {
 	    this.xVel += PLAYER_CLOUD_XV;
-	} else if (keydown.up && this.states.ONCLOUD) {
+	} else if (keydown.up && this.states.ONCLOUD && (this.bBoxP.tag != "umbrella")) {
 	    this.yVel += 150;
 	    this.states.JUMPING = true;
 	} else if (keydown.space) {
@@ -67,7 +69,9 @@ function Player(width, height, xPos, yPos) {
 	if(this.states.UMB_OPEN) {
 	    this.deleteBBoxes();
 	    this.loadBBox(new BoundingBox(22, 0, 37, 76));
-	    this.loadBBox(new BoundingBox(28, 83, 58, 16));
+	    var bBoxUmb = new BoundingBox(28, 83, 58, 16);
+	    bBoxUmb.setTag("umbrella");
+	    this.loadBBox(bBoxUmb);
 	    for(bBox in this.bBoxes) {
 		this.bBoxes[bBox].setSet("playerOpen");
 	    }
@@ -89,12 +93,19 @@ function Player(width, height, xPos, yPos) {
 
 	//check for horizontal collision, act on it
 	if(world.collision(this)) {
-	    this.xPos -= this.xVel * dt;
-    	    this.xVel = 0;
+	    if(this.bBoxP.xPos < this.bBoxE.xPos && this.cloudOn.xVel > 0) {
+		this.xPos -= xOverlap(this.bBoxP, this.bBoxE);
+		this.xVel -= this.cloudOn.xVel;
+	    } else {
+		this.xPos += xOverlap(this.bBoxP, this.bBoxE);
+		this.xVel += this.cloudOn.xVel;
+	    }
+    	    //this.xVel = 0;
 	    this.alignBBoxes();
 	}
-	if(!world.xOverlap(this)) {
-	    //then we're not on a cloud
+
+	//TODO *Seriously* sort this shit out
+	if(!(world.xOverlap(this))) {
 	    this.states.ONCLOUD = false;
 	}
 
@@ -144,8 +155,11 @@ function Player(width, height, xPos, yPos) {
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
     }
 
-    this.handleCollision = function(entity) {
+    this.handleCollision = function(entity, bBoxP, bBoxE) {
 	this.cloudOn = entity;
+	//set pointers (/whatever the hell javascript wants to do) to current colliding boxes
+	this.bBoxP = bBoxP;
+	this.bBoxE = bBoxE;
     }
 }
 

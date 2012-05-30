@@ -16,8 +16,13 @@ function collides(a, b) {
 }
 
 function xOverlap(a, b) {
-    return a.xPos < b.xPos + b.width &&
-	   a.xPos + a.width > b.xPos;
+    if(a.xPos < b.xPos && a.xPos + a.width > b.xPos) {
+	return a.xPos + a.width - b.xPos;
+    } else if (a.xPos + a.width > b.xPos + b.width && a.xPos < b.xPos + b.width) {
+	return b.xPos + b.width - a.xPos;
+    } else {
+	return false;
+    }
 }
 
 //checks whether a is in b

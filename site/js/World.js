@@ -38,6 +38,11 @@ function World() {
 	for(entity in this.entities) {
 	    if(collides(this.entities[entity], renderZone)) {
 		this.entities[entity].draw(posAttribute, texAttribute);
+		if(keydown.z) {
+		    for(var i = 0; i < this.entities[entity].bBoxes.length; i++) {
+			this.entities[entity].bBoxes[i].draw(posAttribute, texAttribute);
+		    }
+		}
 	    }
 	}
     }
@@ -51,11 +56,11 @@ function World() {
 
 		for(bBox2 in entity.bBoxes) {
 
-		    if(entity.bBoxes[bBox2].tag != this.entities[entity2].tag) {
+		    if(entity.bBoxes[bBox2].entityTag != this.entities[entity2].tag) {
 
 			if(collides(entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox])) {
 			    if(entity.tag === "player") {
-				entity.handleCollision(this.entities[entity2]);
+				entity.handleCollision(this.entities[entity2], entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox]);
 			    }
 			    return true;
 			}

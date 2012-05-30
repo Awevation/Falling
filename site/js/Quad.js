@@ -95,7 +95,8 @@ function Quad() {
     this.uDraw = function(posAttr, texAttr) { //because there's no real concept of a 'super' call in JS, specific objects can draw what they want
     };
     this.loadBBox = function(BoundingBox) {
-	BoundingBox.setTag(this.tag);
+	BoundingBox.setEntityTag(this.tag);
+	BoundingBox.bufferUp();
 	this.bBoxes.push(BoundingBox);
     };
     this.alignBBoxes = function() {
