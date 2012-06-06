@@ -1,16 +1,17 @@
-function Cloud(width, height, xPos, yPos) {
+function Cloud(width, height, xPos, yPos, speed) {
     this.xPos = xPos;
     this.yPos = yPos;
-    this.xVel = 10; //cloudVel;
+    this.xVel = speed; //cloudVel;
     this.yVel = 0;
     this.width = width;
     this.height = height;
     this.tag = "cloud";
     this.bBoxes = new Array();
+    this.texture = res.textures.cloud
 
     this.update = function(world, dt) {
-	this.xPos += (this.xVel * dt) / 1000.0;
-	this.yPos += (this.yVel * dt) / 1000.0;
+	this.xPos += this.xVel * dt;
+	this.yPos += this.yVel * dt;
 	this.alignBBoxes();
     }
 }

@@ -5,11 +5,10 @@ var quadVertTexCoBuff;
 var quadVertsIndexBuff;
 var mvMatrix;
 var shaderProgram;
-
+var res;
 var positionAttribute;
 var textureAttribute;
 var perspectiveMatrix;
-var lastUpdate = 0.0;
 
 var WIDTH = 400;
 var HEIGHT = 600;
@@ -17,10 +16,8 @@ var HEIGHT = 600;
 var dt = new Timer();
 var world;
 
-var clouds = new Array();
-
 var spawnX = 200,
-    spawnY = 500,
+    spawnY = 300,
     playerWidth = 100,
     playerHeight = 100;
 	   
@@ -39,6 +36,8 @@ function main() {
 
     //for errr... texture loading!
     textureLoader = new TextureUtil.TextureLoader(gl);
+
+    res = new Res();
     
     initFBO();
 
@@ -57,7 +56,7 @@ function main() {
 
 function loop() {
     requestAnimationFrame(loop);
-    updateScene(dt.getTicks());
+    updateScene(dt.getTicks() / 1000.0);
     drawScene();
     fps =  1 / (dt.getTicks() / 1000.0);
     console.log(fps);
@@ -110,28 +109,23 @@ function drawScene() {
   perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
   loadIdentity();
-  mvTranslate([-player.xPos + 150, -player.yPos + 300, 0.0]);
+ 
+  mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
 
-  world.draw(posAttribute, textureAttribute);
+  world.draw(positionAttribute, textureAttribute, player);
+
+  gl.flush();
 }
 
 function initWorld() {
     world = new World();
 
-    world.genCloud();
-    world.genCloud();
-    world.genCloud();
-
-    //TODO sort this out again.... You need an actual player object.
-    while(world.collision({xPos: spawnX, yPos: spawnY, width: playerWidth, height: playerHeight, xOff: 0, yOff: 0})) {
-	spawnX = Math.floor(Math.random() * 401);
-    }
-
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
-    player.loadTexture("../images/player/player.png");
     player.bufferUp();
 
     world.pushEntity(player);
+
+    world.genClouds(player);
 }
 
 function initShaders() {
@@ -150,8 +144,8 @@ function initShaders() {
   
   gl.useProgram(shaderProgram);
   
-  posAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
-  gl.enableVertexAttribArray(posAttribute);
+  positionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+  gl.enableVertexAttribArray(positionAttribute);
   
   textureAttribute = gl.getAttribLocation(shaderProgram, "aTexCo");
   gl.enableVertexAttribArray(textureAttribute);
@@ -171,7 +165,7 @@ function getShader(gl, id) {
     if (currentChild.nodeType == 3) {
       theSource += currentChild.textContent;
     }
-    
+
     currentChild = currentChild.nextSibling;
   }
   

@@ -1,6 +1,3 @@
-Player.prototype = new Quad();
-Player.prototype.constructor = Player;
-
 function Player(width, height, xPos, yPos) {
     this.width = width;                 
     this.height = height;
@@ -13,6 +10,9 @@ function Player(width, height, xPos, yPos) {
     this.blurFactorV = 0.000;
     this.tag = "player";
     this.bBoxes = new Array();
+    this.texCo = new Array();
+    this.texture = res.textures.player;
+    this.cloudOn;
     this.states = {
 	UMB_OPEN: false, 
 	SLIDING: false, 
@@ -43,25 +43,21 @@ function Player(width, height, xPos, yPos) {
     this.updateTexture = function(frameNum) {
 	//TODO add proper Animation support
 	if(this.states.UMB_OPEN) {
-		texCo = [
-		    0.0, 0.0,
-		    0.0, 1.0,
-		    0.5, 0.0,
-		    0.5, 1.0
+		this.texCo = [
+		    0.0,        0.0,
+		    0.0,        1.0,
+		    1/frameNum, 0.0,
+		    1/frameNum, 1.0
 		];
 	} else if (!this.states.UMB_OPEN) {
-		  texCo = [
-		      0.5, 0.0,
-		      0.5, 1.0,
-		      1.0, 0.0,
-		      1.0, 1.0
+		  this.texCo = [
+		      1/frameNum,       0.0,
+		      1/frameNum,       1.0,
+		      2 * 1/frameNum,   0.0,
+		      2 * 1/frameNum,  1.0
 	          ];
 	}
-
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(texCo), gl.STATIC_DRAW);
-
     }
-
     
     this.update = function(world, dt) {
 	this.updateTexture(2);
@@ -71,14 +67,16 @@ function Player(width, height, xPos, yPos) {
 	if(this.states.UMB_OPEN) {
 	    this.deleteBBoxes();
 	    this.loadBBox(new BoundingBox(22, 0, 37, 76));
-	    this.loadBBox(new BoundingBox(28, 83, 58, 16));
+	    var bBoxUmb = new BoundingBox(28, 83, 58, 16);
+	    bBoxUmb.setTag("umbrella");
+	    this.loadBBox(bBoxUmb);
 	    for(bBox in this.bBoxes) {
 		this.bBoxes[bBox].setSet("playerOpen");
 	    }
 	} else {
 	    this.deleteBBoxes();
 	    this.loadBBox(new BoundingBox(22, 0, 37, 76));
-	    this.loadBBox(new BoundingBox(23, 59, 14, 40));
+	    this.loadBBox(new BoundingBox(45, 59, 14, 40));
 	    for(bBox in this.bBoxes) {
 		this.bBoxes[bBox].setSet("playerClosed");
 	    }   
@@ -88,36 +86,40 @@ function Player(width, height, xPos, yPos) {
 	    this.states.ONCLOUD = false;
 	}
 
-	this.xPos += (this.xVel * dt) / 1000.0;
+	this.xPos += this.xVel * dt;
 	this.alignBBoxes();
 
 	//check for horizontal collision, act on it
 	if(world.collision(this)) {
-	    this.xPos -= (this.xVel * dt) / 1000.0;
-    	    this.xVel = 0;
+	    if(this.bBoxes[this.bBoxCol].xPos < world.entities[this.cloudOn].bBoxes[this.bBoxColW].xPos) {
+		this.xPos -= xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.xVel = world.entities[this.cloudOn].xVel;
+	    } else {
+		this.xPos += xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.xVel = world.entities[this.cloudOn].xVel;
+	    }
 	    this.alignBBoxes();
 	}
-	if(!world.xOverlap(this)) {
-	    //then we're not on a cloud
-	    this.states.ONCLOUD = false;
-	}
 
-	this.yPos += (this.yVel * dt) / 1000.0;
+	this.yPos += this.yVel * dt;
 	this.alignBBoxes();
 
 	//check for vertical collision, act on it
 	if(world.collision(this)) {
-    	    this.yPos -= (this.yVel * dt) / 1000.0;	
+    	    this.yPos -= this.yVel * dt;
 	    this.yVel = 0;
 	    this.alignBBoxes();
-	    this.states.ONCLOUD = true;
+	    if(this.bBoxes[this.bBoxCol].tag != "umbrella") {
+		this.states.ONCLOUD = true;
+	    }
+	    this.states.JUMPING = false;
 	}
 
 	//for friction...
 	if(this.states.ONCLOUD) {
-	    if(this.xVel > cloudVel) {
+	    if(this.xVel > world.entities[this.cloudOn].xVel) {
 		this.xVel -= friction;
-	    } else if (this.xVel < cloudVel) {
+	    } else if (this.xVel < world.entities[this.cloudOn].xVel) {
 		this.xVel += friction;
 	    }
 	}
@@ -127,10 +129,10 @@ function Player(width, height, xPos, yPos) {
 		if(this.yVel > -50) { //cap gravity, air resistance
 	    	    this.yVel += gravity;
 		} else {
-		    this.yVel -= gravity;
+		    this.yVel -= gravity * 10;
 		}
 	    } else {
-		if(this.yVel > -200) {
+		if(this.yVel > -500) {
 		    this.yVel += gravity;
 		} else {
 		    this.yVel -= gravity;
@@ -138,13 +140,31 @@ function Player(width, height, xPos, yPos) {
 	    }
 	}
 
+	if(this.states.ONCLOUD) {
+	    //check if you're *really* all that ONCLOUD
+	    if(xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]) === false) {
+		//nope
+		this.states.ONCLOUD = false;
+	    }
+	}
+
 	//figure out how much blur to blur with
-	this.blurFactorH = this.xVel / 5000.0;
-	this.blurFactorV = this.yVel / 5000.0;
+	this.blurFactorH = this.xVel / 10000.0;
+    	this.blurFactorV = this.yVel / 10000.0;
     }
 
     this.uDraw = function(posAttribute, texAttribute) {
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "hAmount"), this.blurFactorH);
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
     }
+
+    this.recCollision = function(entity, thisbBoxNum, bBox2) {
+	this.cloudOn = entity;
+	//genius and syntactically horrible replacements for pointers, they're just integers, the array index of the object
+	this.bBoxCol = thisbBoxNum;
+	this.bBoxColW = bBox2;
+    }
 }
+
+Player.prototype = new Quad();
+Player.prototype.constructor = Player;
