@@ -59,9 +59,8 @@ function World() {
 		    if(entity.bBoxes[bBox2].entityTag != this.entities[entity2].tag) {
 
 			if(collides(entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox])) {
-			    if(entity.tag === "player") {
-				entity.handleCollision(this.entities[entity2], entity.bBoxes[bBox2], this.entities[entity2].bBoxes[bBox]);
-			    }
+			    //pass in the number of the bounding box of the entity we're checking, my replacement to a pointer. Yes I hate JS. 
+			    entity.recCollision(entity2, bBox2, bBox);
 			    return true;
 			}
 		    }
@@ -90,7 +89,7 @@ function World() {
 	var cloud = new Cloud(width, height, point.x, point.y, speed);
 	
 	cloud.bufferUp();
-	cloud.loadBBox(new BoundingBox(5, 32, 91, 38));
+	cloud.loadBBox(new BoundingBox(12, 40, 77, 24));
 	cloud.alignBBoxes();
 
 	this.entities.push(cloud);

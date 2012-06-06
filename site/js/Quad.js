@@ -18,6 +18,10 @@ function Quad() {
     this.tag;
     this.texTag;
     this.bBoxes = new Array();
+    //the bounding box that is collididing
+    this.bBoxCol;
+    //the boundning box that we are colliding with
+    this.bBoxColW;
 
     this.setX = function(x) {
 	this.xPos = x;
@@ -120,6 +124,14 @@ function Quad() {
 	    }
 	}
     };
+
+    //Receive Collision objects
+    this.recCollision = function(bBox1, bBox2) {
+	//set pointers (/whatever the hell javascript wants to do) to current colliding boxes
+	this.bBoxCol = bBox1;
+	this.bBoxColW = bBox2;
+    }
+
     /*this.updateTexture = function(frameNum) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
 

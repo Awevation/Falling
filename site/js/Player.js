@@ -13,8 +13,6 @@ function Player(width, height, xPos, yPos) {
     this.texCo = new Array();
     this.texture = res.textures.player;
     this.cloudOn;
-    this.bBoxP;
-    this.bBoxE;
     this.states = {
 	UMB_OPEN: false, 
 	SLIDING: false, 
@@ -32,7 +30,7 @@ function Player(width, height, xPos, yPos) {
 	    this.xVel -= PLAYER_CLOUD_XV;
 	} else if (keydown.right && this.states.ONCLOUD) {
 	    this.xVel += PLAYER_CLOUD_XV;
-	} else if (keydown.up && this.states.ONCLOUD && (this.bBoxP.tag != "umbrella")) {
+	} else if (keydown.up && this.states.ONCLOUD) {
 	    this.yVel += 150;
 	    this.states.JUMPING = true;
 	} else if (keydown.space) {
@@ -78,7 +76,7 @@ function Player(width, height, xPos, yPos) {
 	} else {
 	    this.deleteBBoxes();
 	    this.loadBBox(new BoundingBox(22, 0, 37, 76));
-	    this.loadBBox(new BoundingBox(23, 59, 14, 40));
+	    this.loadBBox(new BoundingBox(45, 59, 14, 40));
 	    for(bBox in this.bBoxes) {
 		this.bBoxes[bBox].setSet("playerClosed");
 	    }   
@@ -93,20 +91,14 @@ function Player(width, height, xPos, yPos) {
 
 	//check for horizontal collision, act on it
 	if(world.collision(this)) {
-	    if(this.bBoxP.xPos < this.bBoxE.xPos && this.cloudOn.xVel > 0) {
-		this.xPos -= xOverlap(this.bBoxP, this.bBoxE);
-		this.xVel -= this.cloudOn.xVel;
+	    if(this.bBoxes[this.bBoxCol].xPos < world.entities[this.cloudOn].bBoxes[this.bBoxColW].xPos) {
+		this.xPos -= xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.xVel = world.entities[this.cloudOn].xVel;
 	    } else {
-		this.xPos += xOverlap(this.bBoxP, this.bBoxE);
-		this.xVel += this.cloudOn.xVel;
+		this.xPos += xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.xVel = world.entities[this.cloudOn].xVel;
 	    }
-    	    //this.xVel = 0;
 	    this.alignBBoxes();
-	}
-
-	//TODO *Seriously* sort this shit out
-	if(!(world.xOverlap(this))) {
-	    this.states.ONCLOUD = false;
 	}
 
 	this.yPos += this.yVel * dt;
@@ -114,17 +106,20 @@ function Player(width, height, xPos, yPos) {
 
 	//check for vertical collision, act on it
 	if(world.collision(this)) {
-    	    this.yPos -= this.yVel * dt;	
+    	    this.yPos -= this.yVel * dt;
 	    this.yVel = 0;
 	    this.alignBBoxes();
-	    this.states.ONCLOUD = true;
+	    if(this.bBoxes[this.bBoxCol].tag != "umbrella") {
+		this.states.ONCLOUD = true;
+	    }
+	    this.states.JUMPING = false;
 	}
 
 	//for friction...
 	if(this.states.ONCLOUD) {
-	    if(this.xVel > this.cloudOn.xVel) {
+	    if(this.xVel > world.entities[this.cloudOn].xVel) {
 		this.xVel -= friction;
-	    } else if (this.xVel < this.cloudOn.xVel) {
+	    } else if (this.xVel < world.entities[this.cloudOn].xVel) {
 		this.xVel += friction;
 	    }
 	}
@@ -145,6 +140,14 @@ function Player(width, height, xPos, yPos) {
 	    }
 	}
 
+	if(this.states.ONCLOUD) {
+	    //check if you're *really* all that ONCLOUD
+	    if(xOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]) === false) {
+		//nope
+		this.states.ONCLOUD = false;
+	    }
+	}
+
 	//figure out how much blur to blur with
 	this.blurFactorH = this.xVel / 10000.0;
     	this.blurFactorV = this.yVel / 10000.0;
@@ -155,11 +158,11 @@ function Player(width, height, xPos, yPos) {
 	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
     }
 
-    this.handleCollision = function(entity, bBoxP, bBoxE) {
+    this.recCollision = function(entity, thisbBoxNum, bBox2) {
 	this.cloudOn = entity;
-	//set pointers (/whatever the hell javascript wants to do) to current colliding boxes
-	this.bBoxP = bBoxP;
-	this.bBoxE = bBoxE;
+	//genius and syntactically horrible replacements for pointers, they're just integers, the array index of the object
+	this.bBoxCol = thisbBoxNum;
+	this.bBoxColW = bBox2;
     }
 }
 

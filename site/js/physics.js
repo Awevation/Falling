@@ -20,7 +20,9 @@ function xOverlap(a, b) {
 	return a.xPos + a.width - b.xPos;
     } else if (a.xPos + a.width > b.xPos + b.width && a.xPos < b.xPos + b.width) {
 	return b.xPos + b.width - a.xPos;
-    } else {
+    } else if (a.xPos > b.xPos && a.xPos + a.width < b.xPos + b.width) {
+	return true;
+    } else if (a.xPos + a.width < b.xPos || a.xPos > b.xPos + b.width) {
 	return false;
     }
 }
