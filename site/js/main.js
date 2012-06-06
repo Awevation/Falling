@@ -11,6 +11,9 @@ var textureAttribute;
 var perspectiveMatrix;
 var lastUpdate = 0.0;
 
+var WIDTH = 400;
+var HEIGHT = 600;
+
 var dt = new Timer();
 var world;
 
@@ -76,6 +79,17 @@ function initWebGL(canvas) {
 
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
+
+  var fbo; //framebuffer
+  var image; //the image displayed on the screen
+  var rbo; //renderbuffer
+
+  /*fbo = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER_EXT, fbo);
+  rbo = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER_EXT, rbo);
+  gl.renderbufferStorage(gl.RENDERBUFFER_EXT, gl.DEPTH_COMPONENT, WIDTH, HEIGHT);
+*/
 }
 
 function updateScene(dt) {
