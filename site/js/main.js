@@ -10,11 +10,23 @@ var positionAttribute;
 var textureAttribute;
 var perspectiveMatrix;
 
+var TESTQUAD;
+
 var WIDTH = 400;
 var HEIGHT = 600;
 
+var fbo; //framebuffer
+var rbo; //renderbuffer
+
 var dt = new Timer();
 var world;
+
+var ultiQuad = new Quad();
+ultiQuad.xPos = 0;
+ultiQuad.yPos = 0;
+ultiQuad.width = 400;
+ultiQuad.height = 600;
+
 
 var spawnX = 200,
     spawnY = 300,
@@ -33,6 +45,7 @@ function main() {
   if (gl) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(gl.FALSE)
 
     //for errr... texture loading!
     textureLoader = new TextureUtil.TextureLoader(gl);
@@ -58,8 +71,6 @@ function loop() {
     requestAnimationFrame(loop);
     updateScene(dt.getTicks() / 1000.0);
     drawScene();
-    fps =  1 / (dt.getTicks() / 1000.0);
-    console.log(fps);
     dt.start();
 }
 
@@ -78,17 +89,6 @@ function initWebGL(canvas) {
 
   gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
   gl.enable(gl.BLEND);
-
-  var fbo; //framebuffer
-  var image; //the image displayed on the screen
-  var rbo; //renderbuffer
-
-  /*fbo = gl.createFramebuffer();
-  gl.bindFramebuffer(gl.FRAMEBUFFER_EXT, fbo);
-  rbo = gl.createRenderbuffer();
-  gl.bindRenderbuffer(gl.RENDERBUFFER_EXT, rbo);
-  gl.renderbufferStorage(gl.RENDERBUFFER_EXT, gl.DEPTH_COMPONENT, WIDTH, HEIGHT);
-*/
 }
 
 function updateScene(dt) {
@@ -96,25 +96,79 @@ function updateScene(dt) {
 }
 
 function initFBO() {
-    var myFBO;
-    myFBO = gl.createFramebuffer();
-    //gl.bindFramebuffer(gl.FRAMEBUFFER, myFBO);
-    //gl.bindFramebuffer(gl.FRAMEBUFFER, 0);
+    fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    ultiQuad.texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, ultiQuad.texture);
+    
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    //gl.generateMipmap(gl.TEXTURE_2D);
+
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, WIDTH, HEIGHT, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+    /*rbo = gl.createRenderbuffer();
+    gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA4, WIDTH, HEIGHT);*/
+
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, ultiQuad.texture, 0);
+    //gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, rbo);
+
+    if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
+	console.log("cool");
+    } else {
+	console.log("not cool");
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    //gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function drawScene() {
-  //Setup initial scene
-  gl.clear(gl.COLOR_BUFFER_BIT);
+    perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
-  perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-  loadIdentity();
- 
-  mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
+    loadIdentity();
 
-  world.draw(positionAttribute, textureAttribute, player);
+    mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
 
-  gl.flush();
+    world.draw(positionAttribute, textureAttribute, player);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    gl.viewport(0, 0, WIDTH, HEIGHT);
+
+    TESTQUAD.texture = res.textures.player;
+	
+    TESTQUAD.draw(positionAttribute, textureAttribute);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    //Setup the canvas for viewing
+
+    //perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
+
+    //gl.clear(gl.COLOR_BUFFER_BIT);
+
+    //loadIdentity();
+
+    //mvTranslate([0.0, 0.0, 0.0]);
+
+    //draw the texture in that fbo to the canvas' fbo (the default)
+    //ultiQuad.texture = res.textures.player;
+
+    ultiQuad.bufferUp();
+    ultiQuad.draw(positionAttribute, textureAttribute);
+
+    gl.flush();
 }
 
 function initWorld() {
@@ -122,6 +176,9 @@ function initWorld() {
 
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.bufferUp();
+
+    TESTQUAD = new Cloud(100, 100, 0, 0, 0);
+    TESTQUAD.bufferUp();
 
     world.pushEntity(player);
 

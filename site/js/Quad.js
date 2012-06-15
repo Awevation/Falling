@@ -81,6 +81,10 @@ function Quad() {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
@@ -92,6 +96,8 @@ function Quad() {
 	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
 	this.uDraw(posAttribute, textureAttribute);
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
 	//pop back to old matrix
 	mvPopMatrix();
