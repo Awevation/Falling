@@ -19,6 +19,7 @@
       <script src="js/Camera.js" type="text/javascript"></script>
       <script src="js/Quad.js" type="text/javascript"></script>
       <script src="js/Cloud.js" type="text/javascript"></script>
+      <script src="js/TESTQUAD.js" type="text/javascript"></script>
       <script src="js/Sky.js" type="text/javascript"></script>
       <script src="js/World.js" type="text/javascript"></script>
       <script src="js/Player.js" type="text/javascript"></script>
@@ -42,19 +43,19 @@
 	  }
       </script>
 
-      <script id="shader-fs" type="x-shader/x-fragment">
+      <script id="shader-fs" type="x-shader/x-fragment">	  
 	  precision mediump float;
 
-	  varying highp vec2 vTexCo;
+      	  varying highp vec2 vTexCo;
 
 	  uniform sampler2D uSampler;
 
 	  void main(void) {
 	      gl_FragColor = texture2D(uSampler, vec2(vTexCo.st));
-	      if(gl_FragColor.a < 0.1) {
+	      if(gl_FragColor.	a < 0.1) {
 		  discard;
 	      }
-	  }
+	  }			
       </script>
 
       <script id="blur-shader" type="x-shader/x-fragment">

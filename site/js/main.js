@@ -4,13 +4,17 @@ var quadVertsBuff;
 var quadVertTexCoBuff;
 var quadVertsIndexBuff;
 var mvMatrix;
+//shader program in use
 var shaderProgram;
+//shader programs
+var shaderProgramBlur;
+var shaderProgramNormal;
 var res;
 var positionAttribute;
 var textureAttribute;
 var perspectiveMatrix;
 
-var TESTQUAD;
+var texture;
 
 var WIDTH = 400;
 var HEIGHT = 600;
@@ -21,12 +25,7 @@ var rbo; //renderbuffer
 var dt = new Timer();
 var world;
 
-var ultiQuad = new Quad();
-ultiQuad.xPos = 0;
-ultiQuad.yPos = 0;
-ultiQuad.width = 400;
-ultiQuad.height = 600;
-
+var ultiQuad = new TESTQUAD(400, 600, 0, 0, 0, null);
 
 var spawnX = 200,
     spawnY = 300,
@@ -52,13 +51,15 @@ function main() {
 
     res = new Res();
     
-    initFBO();
-
     initShaders();
     
     initWorld();
 
     var fps = 0;
+
+    initFBO();
+
+    ultiQuad.bufferUp();
 
     //start timer for finding delta
     dt.start();
@@ -101,73 +102,72 @@ function initFBO() {
 
     ultiQuad.texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, ultiQuad.texture);
-    
-    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    //gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-    //gl.generateMipmap(gl.TEXTURE_2D);
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, WIDTH, HEIGHT, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1.0, 1.0, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-    /*rbo = gl.createRenderbuffer();
+    rbo = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.RGBA4, WIDTH, HEIGHT);*/
-
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 1.0, 1.0);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, ultiQuad.texture, 0);
-    //gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, rbo);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
 
     if(gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE) {
-	console.log("cool");
+        console.log("cool");
     } else {
-	console.log("not cool");
+        console.log("not cool");
     }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
-    //gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function drawScene() {
-    perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
+    //TODO setup use normal shader for first pass
+    //gl.useProgram(shaderProgramNormal);
 
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+
+    perspectiveMatrix = makeOrtho(0.0, WIDTH, 0.0, HEIGHT, -1.0, 1.0);
+
+    gl.viewport(0, 0, WIDTH, HEIGHT);
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     loadIdentity();
 
     mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
-
     world.draw(positionAttribute, textureAttribute, player);
 
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
-
-    gl.viewport(0, 0, WIDTH, HEIGHT);
-
-    TESTQUAD.texture = res.textures.player;
-	
-    TESTQUAD.draw(positionAttribute, textureAttribute);
+    gl.flush();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     //Setup the canvas for viewing
 
-    //perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //gl.clear(gl.COLOR_BUFFER_BIT);
+    perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
-    //loadIdentity();
+    loadIdentity();
 
-    //mvTranslate([0.0, 0.0, 0.0]);
+    mvTranslate([0.0, 0.0, 0.0]);
 
-    //draw the texture in that fbo to the canvas' fbo (the default)
-    //ultiQuad.texture = res.textures.player;
+    //ultiQuad.bufferUp();
 
-    ultiQuad.bufferUp();
+    //change shaders for second pass
+    //initShaders("blur-shader", "shader-vs");
+
     ultiQuad.draw(positionAttribute, textureAttribute);
 
+    //world.draw(positionAttribute, textureAttribute, player);
     gl.flush();
 }
 
@@ -177,19 +177,15 @@ function initWorld() {
     player = new Player(playerWidth, playerHeight, spawnX, spawnY);
     player.bufferUp();
 
-    TESTQUAD = new Cloud(100, 100, 0, 0, 0);
-    TESTQUAD.bufferUp();
-
     world.pushEntity(player);
 
     world.genClouds(player);
 }
 
 function initShaders() {
-  //var fragmentShader = getShader(gl, "shader-fs");
-  var fragmentShader = getShader(gl, "blur-shader");
+  var fragmentShader = getShader(gl, "shader-fs");
   var vertexShader = getShader(gl, "shader-vs");
-    
+  
   shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
@@ -198,7 +194,7 @@ function initShaders() {
   if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
     alert("Unable to initialize the shader program.");
   }
-  
+
   gl.useProgram(shaderProgram);
   
   positionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");

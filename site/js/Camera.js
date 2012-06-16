@@ -1,16 +1,12 @@
 function Camera() {
     this.xPos = 0.0;
     this.yPos = 0.0;
-    this.xVel = 100;
-    this.yVel = 100;
+    this.xVel = 0;
+    this.yVel = 0;
     this.width = 400;
     this.height = 600;
-    //Bounding box inside which the player can freely move without moving this
-    this.bBox = new BoundingBox(100, 133, 100, 400);
 
     this.update = function(dt, player) {
-	//this.alignBBox();
-
 	var distanceX = Math.abs((player.xPos + (player.width / 2)) - (this.xPos + (this.width / 2)));
 	var distanceY = Math.abs((this.yPos + this.height / 2) - (player.yPos + player.height / 2));
 
@@ -46,10 +42,5 @@ function Camera() {
 
 	this.xVel += forceX * c0;
 	this.yVel += forceY * c0;
-    }
-
-    this.alignBBox = function() {
-	this.bBox.xPos = this.xPos + this.bBox.xOff;
-	this.bBox.yPos = this.yPos + this.bBox.yOff;
     }
 }
