@@ -122,6 +122,9 @@ function Player(width, height, xPos, yPos) {
 	    } else if (this.xVel < world.entities[this.cloudOn].xVel) {
 		this.xVel += friction;
 	    }
+	    if(Math.abs(this.xVel - world.entities[this.cloudOn].xVel) <= 1) {
+		this.xVel = world.entities[this.cloudOn].xVel;
+	    }
 	}
 
 	if(!this.states.ONCLOUD) {
