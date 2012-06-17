@@ -7,6 +7,9 @@ function World() {
     this.sky = new Sky(400, 600, 0, 0);
     this.sky.bufferUp();
 
+    //the area to render around the player
+    this.renderZone = new BoundingBox(-1000, -1000, 1000, 1000);
+
     this.pushEntity = function(entity) {
 	this.entities.push(entity);
     }
@@ -18,11 +21,14 @@ function World() {
     this.update = function(dt) {
 	for(entity in this.entities) {
 	    this.entities[entity].update(this, dt);
-
 	    //if it's the player, center the sky + camera around the player!
 	    if(this.entities[entity].tag === "player") {
 		this.camera.update(dt, player);
 		this.sky.update(this.camera);
+		this.renderZone.xPos = this.entities[entity].xPos + this.renderZone.xOff;
+		this.renderZone.width = this.renderZone.xPos + this.renderZone.width - this.renderZone.xOff;
+		this.renderZone.yPos = this.entities[entity].yPos + this.renderZone.yOff;
+		this.renderZone.height = this.renderZone.yPos + this.renderZone.width - this.renderZone.yOff;
 	    }
 	}
 
@@ -30,16 +36,10 @@ function World() {
 	
     }
 
-    //The area to render around the player
-    var renderZone = new BoundingBox(0, 0, 1000, 1000);
-
     this.draw = function(posAttribute, texAttribute) {
-	renderZone.xPos = player.xPos - renderZone.width / 2;
-	renderZone.yPos = player.yPos - renderZone.height / 2;
 	this.sky.draw(posAttribute, texAttribute);
-
 	for(entity in this.entities) {
-	    if(collides(this.entities[entity], renderZone)) {
+	    if(collides(this.entities[entity], this.renderZone)) {
 		this.entities[entity].draw(posAttribute, texAttribute);
 		if(keydown.z) {
 		    for(var i = 0; i < this.entities[entity].bBoxes.length; i++) {

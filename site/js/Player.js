@@ -151,6 +151,7 @@ function Player(width, height, xPos, yPos) {
 	//figure out how much blur to blur with
 	this.blurFactorH = this.xVel / 10000.0;
     	this.blurFactorV = this.yVel / 10000.0;
+	console.log(this.xPos + ", " + this.yPos);
     }
 
     this.uDraw = function(posAttribute, texAttribute) {

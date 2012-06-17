@@ -103,16 +103,15 @@ function initFBO() {
     ultiQuad.texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, ultiQuad.texture);
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.generateMipmap(gl.TEXTURE_2D);
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1.0, 1.0, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2048, 2048, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
     rbo = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, rbo);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 1.0, 1.0);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 2048, 2048);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, ultiQuad.texture, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rbo);
 
@@ -135,7 +134,7 @@ function drawScene() {
 
     perspectiveMatrix = makeOrtho(0.0, WIDTH, 0.0, HEIGHT, -1.0, 1.0);
 
-    gl.viewport(0, 0, WIDTH, HEIGHT);
+    gl.viewport(0, 0, 2048, 2048);
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
@@ -143,6 +142,7 @@ function drawScene() {
     loadIdentity();
 
     mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
+    //mvTranslate([0.0, 0.0, 0.0]);
     world.draw(positionAttribute, textureAttribute, player);
 
     gl.flush();
@@ -151,25 +151,28 @@ function drawScene() {
 
     //Setup the canvas for viewing
 
+    gl.viewport(0, 0, WIDTH, HEIGHT);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
+    //perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
 
     loadIdentity();
 
     mvTranslate([0.0, 0.0, 0.0]);
-
-    //ultiQuad.bufferUp();
+    //mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
+    //mvTranslate([-player.xPos, -player.yPos, 0.0]);
 
     //change shaders for second pass
     //initShaders("blur-shader", "shader-vs");
 
+    //test.draw(positionAttribute, textureAttribute);
     ultiQuad.draw(positionAttribute, textureAttribute);
-
     //world.draw(positionAttribute, textureAttribute, player);
     gl.flush();
 }
+
+var test;
 
 function initWorld() {
     world = new World();
@@ -180,6 +183,9 @@ function initWorld() {
     world.pushEntity(player);
 
     world.genClouds(player);
+
+    test = new TESTQUAD(100, 100, 100, 100, res.textures.cloud);
+    test.bufferUp();
 }
 
 function initShaders() {

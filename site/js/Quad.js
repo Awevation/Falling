@@ -84,10 +84,13 @@ function Quad() {
 
 	gl.activeTexture(gl.TEXTURE0);
 	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+	/*gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);*/
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+	gl.generateMipmap(gl.TEXTURE_2D);
 
 	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
@@ -100,9 +103,10 @@ function Quad() {
 	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
 	this.uDraw(posAttribute, textureAttribute);
-	gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-	gl.bindTexture(gl.TEXTURE_2D, null);
+	//gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	//gl.bindTexture(gl.TEXTURE_2D, null);
+	//console.log("(" + this.xPos + ", " + this.yPos + ")");
 
 	//pop back to old matrix
 	mvPopMatrix();
