@@ -26,9 +26,10 @@ function World() {
 		this.camera.update(dt, player);
 		this.sky.update(this.camera);
 		this.renderZone.xPos = this.entities[entity].xPos + this.renderZone.xOff;
-		this.renderZone.width = this.renderZone.xPos + this.renderZone.width - this.renderZone.xOff;
+		this.renderZone.width = 2000;
 		this.renderZone.yPos = this.entities[entity].yPos + this.renderZone.yOff;
-		this.renderZone.height = this.renderZone.yPos + this.renderZone.width - this.renderZone.yOff;
+		this.renderZone.height = 2000;
+		console.log(this.renderZone.xPos);
 	    }
 	}
 
@@ -36,14 +37,14 @@ function World() {
 	
     }
 
-    this.draw = function(posAttribute, texAttribute) {
-	this.sky.draw(posAttribute, texAttribute);
+    this.draw = function(shaderProgram, posAttribute, texAttribute) {
+	this.sky.draw(shaderProgram, posAttribute, texAttribute);
 	for(entity in this.entities) {
 	    if(collides(this.entities[entity], this.renderZone)) {
-		this.entities[entity].draw(posAttribute, texAttribute);
+		this.entities[entity].draw(shaderProgram, posAttribute, texAttribute);
 		if(keydown.z) {
 		    for(var i = 0; i < this.entities[entity].bBoxes.length; i++) {
-			this.entities[entity].bBoxes[i].draw(posAttribute, texAttribute);
+			this.entities[entity].bBoxes[i].draw(shaderProgram, posAttribute, texAttribute);
 		    }
 		}
 	    }

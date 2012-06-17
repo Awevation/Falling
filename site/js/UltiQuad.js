@@ -48,8 +48,11 @@ function TESTQUAD(width, height, xPos, yPos, tex) {
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
     };
 
-    this.draw = function(posAttribute, textureAttribute) {
+    this.draw = function(shaderProgram, posAttribute, textureAttribute, player) {
         mvPushMatrix();
+
+	gl.uniform1f(gl.getUniformLocation(shaderProgram, "hAmount"), player.blurFactorH);
+	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), player.blurFactorV);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
         gl.vertexAttribPointer(posAttribute, 3, gl.FLOAT, false, 0, 0);
@@ -67,7 +70,7 @@ function TESTQUAD(width, height, xPos, yPos, tex) {
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-        setMatrixUniforms();
+        setMatrixUniforms(shaderProgram);
 
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 

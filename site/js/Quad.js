@@ -71,7 +71,7 @@ function Quad() {
 	this.xPos += this.xVel * delta;
 	this.yPos += this.yVel * delta;
     };
-    this.draw = function(posAttribute, textureAttribute) {
+    this.draw = function(shaderProgram, posAttribute, textureAttribute) {
 	mvPushMatrix();
 
 	mvTranslate([this.xPos, this.yPos, 0.0]);
@@ -96,7 +96,7 @@ function Quad() {
 
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-	setMatrixUniforms();
+	setMatrixUniforms(shaderProgram);
 
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 

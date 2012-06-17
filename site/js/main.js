@@ -4,11 +4,10 @@ var quadVertsBuff;
 var quadVertTexCoBuff;
 var quadVertsIndexBuff;
 var mvMatrix;
-//shader program in use
-var shaderProgram;
 //shader programs
 var shaderProgramBlur;
 var shaderProgramNormal;
+
 var res;
 var positionAttribute;
 var textureAttribute;
@@ -127,8 +126,14 @@ function initFBO() {
 }
 
 function drawScene() {
-    //TODO setup use normal shader for first pass
-    //gl.useProgram(shaderProgramNormal);
+    //set the 'normal' shader to use
+    gl.useProgram(shaderProgramNormal);
+         
+    positionAttribute = gl.getAttribLocation(shaderProgramNormal, "aVertexPosition");
+    gl.enableVertexAttribArray(positionAttribute);         
+   
+    textureAttribute = gl.getAttribLocation(shaderProgramNormal, "aTexCo");
+    gl.enableVertexAttribArray(textureAttribute);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
 
@@ -143,32 +148,33 @@ function drawScene() {
 
     mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
     //mvTranslate([0.0, 0.0, 0.0]);
-    world.draw(positionAttribute, textureAttribute, player);
+    world.draw(shaderProgramNormal, positionAttribute, textureAttribute, player);
 
     gl.flush();
 
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    //Setup the canvas for viewing
+    //set the blur shader to use, for a second pass
+    gl.useProgram(shaderProgramBlur);
+         
+    positionAttribute = gl.getAttribLocation(shaderProgramBlur, "aVertexPosition");
+    gl.enableVertexAttribArray(positionAttribute);
+               
+    textureAttribute = gl.getAttribLocation(shaderProgramBlur, "aTexCo");
 
+    gl.enableVertexAttribArray(textureAttribute);
+    //Setup the canvas for viewing
     gl.viewport(0, 0, WIDTH, HEIGHT);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    //perspectiveMatrix = makeOrtho(0.0, 400.0, 0.0, 600.0, -1.0, 1.0);
-
     loadIdentity();
 
     mvTranslate([0.0, 0.0, 0.0]);
-    //mvTranslate([-world.camera.xPos, -world.camera.yPos, 0.0]);
-    //mvTranslate([-player.xPos, -player.yPos, 0.0]);
 
-    //change shaders for second pass
-    //initShaders("blur-shader", "shader-vs");
+    //draw the scene
+    ultiQuad.draw(shaderProgramBlur, positionAttribute, textureAttribute, player);
 
-    //test.draw(positionAttribute, textureAttribute);
-    ultiQuad.draw(positionAttribute, textureAttribute);
-    //world.draw(positionAttribute, textureAttribute, player);
     gl.flush();
 }
 
@@ -189,25 +195,35 @@ function initWorld() {
 }
 
 function initShaders() {
-  var fragmentShader = getShader(gl, "shader-fs");
-  var vertexShader = getShader(gl, "shader-vs");
+  var fragmentShaderNorm = getShader(gl, "shader-fs");
+  var vertexShaderNorm = getShader(gl, "shader-vs");
+  var fragmentShaderBlur = getShader(gl, "blur-fs");
   
-  shaderProgram = gl.createProgram();
-  gl.attachShader(shaderProgram, vertexShader);
-  gl.attachShader(shaderProgram, fragmentShader);
-  gl.linkProgram(shaderProgram);
+  shaderProgramNormal = gl.createProgram();
+  gl.attachShader(shaderProgramNormal, vertexShaderNorm);
+  gl.attachShader(shaderProgramNormal, fragmentShaderNorm);
+  gl.linkProgram(shaderProgramNormal);
   
-  if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-    alert("Unable to initialize the shader program.");
+  if (!gl.getProgramParameter(shaderProgramNormal, gl.LINK_STATUS)) {
+    alert("Unable to initialize the shader program. (Normal)");
   }
 
-  gl.useProgram(shaderProgram);
+  /*gl.useProgram(shaderProgram);
   
   positionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
   gl.enableVertexAttribArray(positionAttribute);
   
   textureAttribute = gl.getAttribLocation(shaderProgram, "aTexCo");
-  gl.enableVertexAttribArray(textureAttribute);
+  gl.enableVertexAttribArray(textureAttribute);*/
+
+  shaderProgramBlur = gl.createProgram();
+  gl.attachShader(shaderProgramBlur, vertexShaderNorm);
+  gl.attachShader(shaderProgramBlur, fragmentShaderBlur);
+  gl.linkProgram(shaderProgramBlur);
+
+    if (!gl.getProgramParameter(shaderProgramBlur, gl.LINK_STATUS)) {
+	    alert("Unable to initialize the shader program. (Blur)");
+    }
 }
 
 function getShader(gl, id) {
@@ -266,7 +282,7 @@ function mvTranslate(v) {
   multMatrix(Matrix.Translation($V([v[0], v[1], v[2]])).ensure4x4());
 }
 
-function setMatrixUniforms() {
+function setMatrixUniforms(shaderProgram) {
   var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
   gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
 

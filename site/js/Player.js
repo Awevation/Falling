@@ -31,7 +31,7 @@ function Player(width, height, xPos, yPos) {
 	} else if (keydown.right && this.states.ONCLOUD) {
 	    this.xVel += PLAYER_CLOUD_XV;
 	} else if (keydown.up && this.states.ONCLOUD) {
-	    this.yVel += 150;
+	    this.yVel += 100;
 	    this.states.JUMPING = true;
 	} else if (keydown.space) {
 	    this.states.UMB_OPEN = true;
@@ -126,10 +126,14 @@ function Player(width, height, xPos, yPos) {
 
 	if(!this.states.ONCLOUD) {
 	    if(this.states.UMB_OPEN) {
-		if(this.yVel > -50) { //cap gravity, air resistance
-	    	    this.yVel += gravity;
+		if(this.yVel >= -50) { //cap gravity, air resistance
+		    this.yVel += gravity;
 		} else {
-		    this.yVel -= gravity * 10;
+		    if(this.yVel >= -100) {
+			this.yVel -= gravity;
+		    } else {
+			this.yVel -= gravity * 10;
+		    }
 		}
 	    } else {
 		if(this.yVel > -500) {
@@ -149,14 +153,8 @@ function Player(width, height, xPos, yPos) {
 	}
 
 	//figure out how much blur to blur with
-	this.blurFactorH = this.xVel / 10000.0;
-    	this.blurFactorV = this.yVel / 10000.0;
-	console.log(this.xPos + ", " + this.yPos);
-    }
-
-    this.uDraw = function(posAttribute, texAttribute) {
-	gl.uniform1f(gl.getUniformLocation(shaderProgram, "hAmount"), this.blurFactorH);
-	gl.uniform1f(gl.getUniformLocation(shaderProgram, "vAmount"), this.blurFactorV);
+	this.blurFactorH = this.xVel / 40000.0;
+    	this.blurFactorV = this.yVel / 40000.0;
     }
 
     this.recCollision = function(entity, thisbBoxNum, bBox2) {
