@@ -1,5 +1,5 @@
 //constants
-var gravity = -2;
+var gravity = -4;
 var friction = 4;
 var cloudVel = 10;
 var PLAYER_MAX_AIR_XV = 50;

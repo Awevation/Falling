@@ -135,7 +135,7 @@ function Player(width, height, xPos, yPos) {
 		    if(this.yVel >= -100) {
 			this.yVel -= gravity;
 		    } else {
-			this.yVel -= gravity * 10;
+			this.yVel -= gravity * 4;
 		    }
 		}
 	    } else {
