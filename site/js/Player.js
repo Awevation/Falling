@@ -132,7 +132,7 @@ function Player(width, height, xPos, yPos) {
 		if(this.yVel >= -50) { //cap gravity, air resistance
 		    this.yVel += gravity;
 		} else {
-		    if(this.yVel >= -100) {
+		    if(this.yVel >= -60) {
 			this.yVel -= gravity;
 		    } else {
 			this.yVel -= gravity * 4;

@@ -29,7 +29,6 @@ function World() {
 		this.renderZone.width = 2000;
 		this.renderZone.yPos = this.entities[entity].yPos + this.renderZone.yOff;
 		this.renderZone.height = 2000;
-		console.log(this.renderZone.xPos);
 	    }
 	}
 
