@@ -106,17 +106,17 @@ function Player(width, height, xPos, yPos) {
 
 	//check for vertical collision, act on it
 	if(world.collision(this)) {
-	    if(this.bBoxes[this.bBoxCol].yPos < world.entities[this.cloudOn].bBoxes[this.bBoxColW].yPos + world.entities[this.cloudOn].bBoxes[this.bBoxColW].height) {
+	    if(this.bBoxes[this.bBoxCol].yPos > world.entities[this.cloudOn].bBoxes[this.bBoxColW].yPos) {
 		this.yPos += yOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
 		this.yVel = world.entities[this.cloudOn].yVel;
+		if(this.bBoxes[this.bBoxCol].tag != "umbrella") {
+		    this.states.ONCLOUD = true;
+		}
 	    } else {
 		this.yPos -= yOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
 		this.yVel = world.entities[this.cloudOn].yVel;
 	    }
 	    this.alignBBoxes();
-	    if(this.bBoxes[this.bBoxCol].tag != "umbrella") {
-		this.states.ONCLOUD = true;
-	    }
 	    this.states.JUMPING = false;
 	}
 
