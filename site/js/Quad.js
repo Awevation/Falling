@@ -103,10 +103,9 @@ function Quad() {
 	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
 	this.uDraw(posAttribute, textureAttribute);
-	//gl.bindBuffer(gl.ARRAY_BUFFER, null);
-	//gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-	//gl.bindTexture(gl.TEXTURE_2D, null);
-	//console.log("(" + this.xPos + ", " + this.yPos + ")");
+	gl.bindBuffer(gl.ARRAY_BUFFER, null);
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+	gl.bindTexture(gl.TEXTURE_2D, null);
 
 	//pop back to old matrix
 	mvPopMatrix();

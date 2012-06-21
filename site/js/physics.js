@@ -27,6 +27,18 @@ function xOverlap(a, b) {
     }
 }
 
+function yOverlap(a, b) {
+    if(a.yPos < b.yPos && a.yPos + a.height > b.yPos) {
+	return a.yPos + a.height - b.yPos;
+    } else if (a.yPos + a.height > b.yPos + b.height && a.yPos < b.yPos + b.height) {
+	return b.yPos + b.height - a.yPos;
+    } else if (a.yPos > b.yPos && a.yPos + a.height < b.yPos + b.height) {
+	return true;
+    } else if (a.yPos + a.height < b.yPos || a.yPos > b.yPos + b.height) {
+	return false;
+    }
+}
+
 //checks whether a is in b
 function within(a, b) {
     return a.xPos < b.xPos + b.width &&

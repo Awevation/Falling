@@ -24,18 +24,18 @@ function Player(width, height, xPos, yPos) {
 	//TODO cap x movement, with UMB_OPEN respecting.
 	if (keydown.left && !this.states.ONCLOUD) {
 	    this.xVel -= PLAYER_AIR_XV;
-	} else if (keydown.right && !this.states.ONCLOUD) {
+	} if (keydown.right && !this.states.ONCLOUD) {
 	    this.xVel += PLAYER_AIR_XV;
-	} else if (keydown.left && this.states.ONCLOUD) {
+	} if (keydown.left && this.states.ONCLOUD) {
 	    this.xVel -= PLAYER_CLOUD_XV;
-	} else if (keydown.right && this.states.ONCLOUD) {
+	} if (keydown.right && this.states.ONCLOUD) {
 	    this.xVel += PLAYER_CLOUD_XV;
-	} else if (keydown.up && this.states.ONCLOUD) {
-	    this.yVel += 100;
+	} if (keydown.up && this.states.ONCLOUD) {
+	    this.yVel += 130;
 	    this.states.JUMPING = true;
-	} else if (keydown.space) {
+	} if (keydown.space) {
 	    this.states.UMB_OPEN = true;
-	} else if (!keydown.space) {
+	} if (!keydown.space) {
 	    this.states.UMB_OPEN = false;
 	}
     }
@@ -106,8 +106,13 @@ function Player(width, height, xPos, yPos) {
 
 	//check for vertical collision, act on it
 	if(world.collision(this)) {
-    	    this.yPos -= this.yVel * dt;
-	    this.yVel = 0;
+	    if(this.bBoxes[this.bBoxCol].yPos < world.entities[this.cloudOn].bBoxes[this.bBoxColW].yPos + world.entities[this.cloudOn].bBoxes[this.bBoxColW].height) {
+		this.yPos += yOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.yVel = world.entities[this.cloudOn].yVel;
+	    } else {
+		this.yPos -= yOverlap(this.bBoxes[this.bBoxCol], world.entities[this.cloudOn].bBoxes[this.bBoxColW]);
+		this.yVel = world.entities[this.cloudOn].yVel;
+	    }
 	    this.alignBBoxes();
 	    if(this.bBoxes[this.bBoxCol].tag != "umbrella") {
 		this.states.ONCLOUD = true;
@@ -132,11 +137,7 @@ function Player(width, height, xPos, yPos) {
 		if(this.yVel >= -50) { //cap gravity, air resistance
 		    this.yVel += gravity;
 		} else {
-		    if(this.yVel >= -60) {
-			this.yVel -= gravity;
-		    } else {
-			this.yVel -= gravity * 4;
-		    }
+		    this.yVel -= gravity;
 		}
 	    } else {
 		if(this.yVel > -500) {
@@ -156,8 +157,18 @@ function Player(width, height, xPos, yPos) {
 	}
 
 	//figure out how much blur to blur with
-	this.blurFactorH = this.xVel / 40000.0;
-    	this.blurFactorV = this.yVel / 40000.0;
+	
+	if(this.states.ONCLOUD) {
+	    this.blurFactorH = 0.0;
+	    if(this.blurFactorV > 0.0) {
+		this.blurFactorV -= this.blurFactorV * 0.1;
+	    }
+	} else {
+    	    this.blurFactorH = Math.abs(this.xVel / 300000.0);
+	    this.blurFactorV = Math.abs(this.yVel / 300000.0);
+	}
+
+	this.alignBBoxes();
     }
 
     this.recCollision = function(entity, thisbBoxNum, bBox2) {

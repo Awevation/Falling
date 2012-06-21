@@ -61,31 +61,39 @@ function BoundingBox(xOff, yOff, width, height) {
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.indices), gl.STATIC_DRAW);
     };
 
-    this.draw = function(posAttribute, textureAttribute) {
-	mvPushMatrix();
+    this.draw = function(shaderProgram, posAttribute, textureAttribute) {
+        mvPushMatrix();
 
-	mvTranslate([this.xPos, this.yPos, 0.0]);
+        mvTranslate([this.xPos, this.yPos, 0.0]);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
-	gl.vertexAttribPointer(posAttribute, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
+        gl.vertexAttribPointer(posAttribute, 3, gl.FLOAT, false, 0, 0);
 
-	gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
-	gl.vertexAttribPointer(textureAttribute, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+        gl.vertexAttribPointer(textureAttribute, 2, gl.FLOAT, false, 0, 0);
 
-	gl.activeTexture(gl.TEXTURE0);
-	gl.bindTexture(gl.TEXTURE_2D, this.texture);
-	gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
 
+        gl.uniform1i(gl.getUniformLocation(shaderProgram, "uSampler"), 0);
 
-	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
 
-	setMatrixUniforms();
+        setMatrixUniforms(shaderProgram);
 
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.texCo), gl.STATIC_DRAW);
 
-	gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLE_STRIP, 4, gl.UNSIGNED_SHORT, 0);
 
-	//pop back to old matrix
-	mvPopMatrix();
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+
+        //pop back to old matrix
+        mvPopMatrix();
+
     }
 }

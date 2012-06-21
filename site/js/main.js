@@ -1,9 +1,7 @@
 //various variables
 var textureLoader;
-var quadVertsBuff;
-var quadVertTexCoBuff;
-var quadVertsIndexBuff;
 var mvMatrix;
+
 //shader programs
 var shaderProgramBlur;
 var shaderProgramNormal;
@@ -14,6 +12,9 @@ var textureAttribute;
 var perspectiveMatrix;
 
 var texture;
+
+//pervious Projection matric saved to this variable, to calculate per-pixel velocity for the motion blur effect
+var prevPMat;
 
 var WIDTH = 400;
 var HEIGHT = 600;
@@ -104,6 +105,8 @@ function initFBO() {
 
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP);
     gl.generateMipmap(gl.TEXTURE_2D);
 
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2048, 2048, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -161,8 +164,12 @@ function drawScene() {
     gl.enableVertexAttribArray(positionAttribute);
                
     textureAttribute = gl.getAttribLocation(shaderProgramBlur, "aTexCo");
-
     gl.enableVertexAttribArray(textureAttribute);
+
+    if(prevPMat) {
+	gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgramBlur, "prevPMat"), false,  new Float32Array(prevPMat.flatten()));
+    }
+    
     //Setup the canvas for viewing
     gl.viewport(0, 0, WIDTH, HEIGHT);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -172,9 +179,12 @@ function drawScene() {
 
     mvTranslate([0.0, 0.0, 0.0]);
 
+    gl.uniform2f(gl.getUniformLocation(shaderProgramBlur, "vel"), player.blurFactorH, player.blurFactorV);
+
     //draw the scene
     ultiQuad.draw(shaderProgramBlur, positionAttribute, textureAttribute, player);
 
+    prevPMat = perspectiveMatrix;
     gl.flush();
 }
 
@@ -197,7 +207,9 @@ function initWorld() {
 function initShaders() {
   var fragmentShaderNorm = getShader(gl, "shader-fs");
   var vertexShaderNorm = getShader(gl, "shader-vs");
-  var fragmentShaderBlur = getShader(gl, "blur-fs");
+  //var fragmentShaderBlur = getShader(gl, "blur-fs");
+  var vertexShaderBlur = getShader(gl, "shader-vs");
+  var fragmentShaderBlur = getShader(gl, "motionBlur-fs");
   
   shaderProgramNormal = gl.createProgram();
   gl.attachShader(shaderProgramNormal, vertexShaderNorm);
@@ -217,7 +229,7 @@ function initShaders() {
   gl.enableVertexAttribArray(textureAttribute);*/
 
   shaderProgramBlur = gl.createProgram();
-  gl.attachShader(shaderProgramBlur, vertexShaderNorm);
+  gl.attachShader(shaderProgramBlur, vertexShaderBlur);
   gl.attachShader(shaderProgramBlur, fragmentShaderBlur);
   gl.linkProgram(shaderProgramBlur);
 
@@ -283,10 +295,10 @@ function mvTranslate(v) {
 }
 
 function setMatrixUniforms(shaderProgram) {
-  var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+  var pUniform = gl.getUniformLocation(shaderProgram, "currentPMat");
   gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspectiveMatrix.flatten()));
 
-  var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+  var mvUniform = gl.getUniformLocation(shaderProgram, "MVMatrix");
   gl.uniformMatrix4fv(mvUniform, false, new Float32Array(mvMatrix.flatten()));
 }
 
